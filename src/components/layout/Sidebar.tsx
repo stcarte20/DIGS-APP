@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { useState } from 'react';
 import { 
   LayoutDashboard, 
   Briefcase,
@@ -12,67 +13,124 @@ import {
   Bell, 
   HelpCircle, 
   Shield,
-  Scale
+  Scale,
+  ChevronDown,
+  ChevronRight,
+  TrendingUp,
+  ClipboardList,
+  Users,
+  Gavel
 } from 'lucide-react';
 
 const cn = (...inputs: (string | undefined)[]) => {
   return inputs.filter(Boolean).join(' ')
 }
 
-const navigationItems = [
-  { 
-    name: 'My Workspace', 
-    href: '/workspace', 
+// Navigation structure with groups
+const navigationStructure = [
+  {
+    name: 'My Workspace',
+    href: '/workspace',
     icon: Briefcase,
-    description: 'Personal dashboard and tasks'
+    description: 'Personal dashboard and tasks',
+    type: 'single' as const
   },
-  { 
-    name: 'Overview', 
-    href: '/overview', 
-    icon: LayoutDashboard,
-    description: 'Analytics and metrics'
+  {
+    name: 'Reporting',
+    icon: TrendingUp,
+    type: 'group' as const,
+    children: [
+      {
+        name: 'Overview',
+        href: '/overview',
+        icon: LayoutDashboard,
+        description: 'Analytics and metrics'
+      },
+      {
+        name: 'Reports',
+        href: '/reports',
+        icon: BarChart3,
+        description: 'Custom reports'
+      }
+    ]
   },
-  { 
-    name: 'Cases', 
-    href: '/cases', 
+  {
+    name: 'Investigations',
     icon: FileText,
-    description: 'Investigation cases'
+    type: 'group' as const,
+    children: [
+      {
+        name: 'Cases',
+        href: '/cases',
+        icon: FileText,
+        description: 'Investigation cases'
+      },
+      {
+        name: 'Intake',
+        href: '/intake',
+        icon: Inbox,
+        description: 'New case intake'
+      },
+      {
+        name: 'PRM',
+        href: '/prm',
+        icon: Users,
+        description: 'Performance Review Meetings'
+      }
+    ]
   },
-  { 
-    name: 'Grievances', 
-    href: '/grievances', 
+  {
+    name: 'Grievances',
     icon: Scale,
-    description: 'Union grievances'
+    type: 'group' as const,
+    children: [
+      {
+        name: 'All Grievances',
+        href: '/grievances',
+        icon: Scale,
+        description: 'Union grievances'
+      },
+      {
+        name: 'Arbitration',
+        href: '/arbitration',
+        icon: Gavel,
+        description: 'Arbitration cases'
+      }
+    ]
   },
+  {
+    name: 'Tools',
+    icon: ClipboardList,
+    type: 'group' as const,
+    children: [
+      {
+        name: 'Calendar',
+        href: '/calendar',
+        icon: Calendar,
+        description: 'Events and deadlines'
+      },
+      {
+        name: 'Search',
+        href: '/search',
+        icon: Search,
+        description: 'Global search'
+      }
+    ]
+  }
+];
+
+const secondaryItems = [
   { 
-    name: 'Intake', 
-    href: '/intake', 
-    icon: Inbox,
-    description: 'New case intake'
-  },
-  { 
-    name: 'Calendar', 
-    href: '/calendar', 
-    icon: Calendar,
-    description: 'Events and deadlines'
-  },
-  { 
-    name: 'Search', 
-    href: '/search', 
-    icon: Search,
-    description: 'Search cases & documents'
-  },
-  { 
-    name: 'Reports', 
-    href: '/reports', 
-    icon: BarChart3,
-    description: 'Analytics and reports'
+    name: 'Notifications', 
+    href: '/notifications', 
+    icon: Bell,
+    description: 'System notifications'
   },
   { 
     name: 'Settings', 
     href: '/settings', 
     icon: Settings,
-    description: 'System settings'
+    description: 'Application settings'
   },
   { 
     name: 'Profile', 
@@ -81,26 +139,107 @@ const navigationItems = [
     description: 'User profile'
   },
   { 
-    name: 'Notifications', 
-    href: '/notifications', 
-    icon: Bell,
-    description: 'Alerts and notifications'
-  },
-  { 
     name: 'Help', 
     href: '/help', 
     icon: HelpCircle,
-    description: 'Help and documentation'
+    description: 'Help and support'
   },
   { 
     name: 'Office365 Test', 
     href: '/office365test', 
     icon: Shield,
     description: 'Power Platform testing'
-  },
+  }
 ];
 
+interface NavigationGroupProps {
+  group: typeof navigationStructure[0];
+  isExpanded: boolean;
+  onToggle: () => void;
+}
+
+function NavigationGroup({ group, isExpanded, onToggle }: NavigationGroupProps) {
+  if (group.type === 'single') {
+    const Icon = group.icon;
+    return (
+      <NavLink
+        to={group.href!}
+        className={({ isActive }) =>
+          cn(
+            'flex items-center px-6 py-3 text-sm font-medium rounded-lg mx-3 mb-1 transition-colors',
+            isActive
+              ? 'bg-primary text-primary-foreground'
+              : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+          )
+        }
+      >
+        <Icon className="mr-3 h-5 w-5" />
+        {group.name}
+      </NavLink>
+    );
+  }
+
+  const Icon = group.icon;
+  return (
+    <div className="mb-1">
+      <button
+        onClick={onToggle}
+        className="flex items-center justify-between w-full px-6 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg mx-3 transition-colors"
+      >
+        <div className="flex items-center">
+          <Icon className="mr-3 h-5 w-5" />
+          {group.name}
+        </div>
+        {isExpanded ? (
+          <ChevronDown className="h-4 w-4" />
+        ) : (
+          <ChevronRight className="h-4 w-4" />
+        )}
+      </button>
+      
+      {isExpanded && (
+        <div className="ml-6 mt-1 space-y-1">
+          {group.children?.map((item) => {
+            const ItemIcon = item.icon;
+            return (
+              <NavLink
+                key={item.name}
+                to={item.href}
+                className={({ isActive }) =>
+                  cn(
+                    'flex items-center px-6 py-2 text-sm rounded-lg mx-3 transition-colors',
+                    isActive
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                  )
+                }
+              >
+                <ItemIcon className="mr-3 h-4 w-4" />
+                {item.name}
+              </NavLink>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function Sidebar() {
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({
+    'Reporting': false,
+    'Investigations': true, // Start with Investigations expanded
+    'Grievances': false,
+    'Tools': false
+  });
+
+  const toggleGroup = (groupName: string) => {
+    setExpandedGroups(prev => ({
+      ...prev,
+      [groupName]: !prev[groupName]
+    }));
+  };
+
   return (
     <div className="flex flex-col w-64 bg-card border-r">
       {/* Logo and Title */}
@@ -112,36 +251,43 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-        {navigationItems.map((item) => (
-          <NavLink
-            key={item.name}
-            to={item.href}
-            className={({ isActive }) =>
-              cn(
-                'flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors',
-                'hover:bg-accent hover:text-accent-foreground',
-                isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-foreground'
-              )
-            }
-          >
-            <item.icon className="h-5 w-5 mr-3" />
-            <div className="flex-1">
-              <div>{item.name}</div>
-              <div className="text-xs opacity-70">{item.description}</div>
-            </div>
-          </NavLink>
-        ))}
+      {/* Main Navigation */}
+      <nav className="flex-1 py-4">
+        <div className="space-y-1">
+          {navigationStructure.map((item) => (
+            <NavigationGroup
+              key={item.name}
+              group={item}
+              isExpanded={expandedGroups[item.name] || false}
+              onToggle={() => toggleGroup(item.name)}
+            />
+          ))}
+        </div>
       </nav>
 
-      {/* Footer */}
-      <div className="p-4 border-t">
-        <div className="text-xs text-muted-foreground text-center">
-          <p>DIGS v1.0.0</p>
-          <p>© 2025 Labor Relations</p>
+      {/* Secondary Navigation */}
+      <div className="border-t p-4">
+        <div className="space-y-1">
+          {secondaryItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <NavLink
+                key={item.name}
+                to={item.href}
+                className={({ isActive }) =>
+                  cn(
+                    'flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors',
+                    isActive
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                  )
+                }
+              >
+                <Icon className="mr-3 h-4 w-4" />
+                {item.name}
+              </NavLink>
+            );
+          })}
         </div>
       </div>
     </div>

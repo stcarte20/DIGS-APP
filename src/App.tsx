@@ -9,6 +9,8 @@ import { CaseDetail } from './pages/CaseDetail';
 import { Grievances } from './pages/Grievances';
 import { 
   GrievanceDetail, 
+  Arbitration,
+  PRM,
   Intake, 
   Calendar, 
   Search, 
@@ -47,6 +49,8 @@ function App() {
                 <Route path="/cases/:id" element={<CaseDetail />} />
                 <Route path="/grievances" element={<Grievances />} />
                 <Route path="/grievances/:id" element={<GrievanceDetail />} />
+                <Route path="/arbitration" element={<Arbitration />} />
+                <Route path="/prm" element={<PRM />} />
                 <Route path="/intake" element={<Intake />} />
                 <Route path="/calendar" element={<Calendar />} />
                 <Route path="/search" element={<Search />} />

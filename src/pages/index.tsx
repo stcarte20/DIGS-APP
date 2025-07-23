@@ -9,6 +9,24 @@ export function GrievanceDetail() {
   );
 }
 
+export function Arbitration() {
+  return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold">Arbitration</h1>
+      <p>Arbitration case management will be implemented in Phase 4</p>
+    </div>
+  );
+}
+
+export function PRM() {
+  return (
+    <div className="space-y-6">
+      <h1 className="text-3xl font-bold">Performance Review Meetings</h1>
+      <p>PRM scheduling and management will be implemented in Phase 4</p>
+    </div>
+  );
+}
+
 export function Intake() {
   return (
     <div className="space-y-6">
