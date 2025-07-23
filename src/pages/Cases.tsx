@@ -33,11 +33,13 @@ export function Cases() {
     const variants: Record<CaseStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
       [CaseStatus.New]: 'outline',
       [CaseStatus.Investigation]: 'default',
+      [CaseStatus.Investigating]: 'default',
       [CaseStatus.EvidenceReview]: 'secondary',
       [CaseStatus.RecommendationPending]: 'default',
       [CaseStatus.PRMScheduled]: 'secondary',
       [CaseStatus.PRMComplete]: 'secondary',
       [CaseStatus.DecisionPending]: 'default',
+      [CaseStatus.PendingERU]: 'destructive',
       [CaseStatus.Closed]: 'secondary',
       [CaseStatus.Archived]: 'outline',
     };

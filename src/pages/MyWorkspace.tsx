@@ -1,0 +1,395 @@
+import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
+import { Button } from '../components/ui/button';
+import { 
+  Calendar, 
+  Clock, 
+  AlertTriangle, 
+  CheckCircle, 
+  FileText, 
+  Users, 
+  Bell,
+  Plus,
+  ChevronRight,
+  Target,
+  CalendarDays,
+  Briefcase
+} from 'lucide-react';
+import { dataverseService } from '../services/powerPlatform';
+import { Task, CaseStatus } from '../types';
+
+// Mock current user - in production this would come from authentication
+const CURRENT_USER = {
+  id: 'user-1',
+  name: 'John Investigator',
+  role: 'Investigator',
+  email: 'john.investigator@company.com'
+};
+
+export function MyWorkspace() {
+  // Fetch my assigned cases
+  const { data: myCases, isLoading: casesLoading } = useQuery({
+    queryKey: ['my-cases'],
+    queryFn: () => dataverseService.getCases({ assignedTo: CURRENT_USER.id }),
+  });
+
+  // Fetch my tasks
+  const { data: myTasks, isLoading: tasksLoading } = useQuery({
+    queryKey: ['my-tasks'],
+    queryFn: () => dataverseService.getTasks({ assignedTo: CURRENT_USER.id }),
+  });
+
+  // Fetch my grievances (if applicable to role)
+  const { data: _myGrievances, isLoading: grievancesLoading } = useQuery({
+    queryKey: ['my-grievances'],
+    queryFn: () => dataverseService.getGrievances({ assignedTo: CURRENT_USER.id }),
+  });
+
+  if (casesLoading || tasksLoading || grievancesLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-lg">Loading your workspace...</div>
+      </div>
+    );
+  }
+
+  const activeCases = myCases?.data || [];
+  const pendingTasks = myTasks?.data?.filter((task: Task) => task.status === 'Pending') || [];
+  const overdueTasks = myTasks?.data?.filter((task: Task) => 
+    task.status === 'Pending' && task.dueDate && new Date(task.dueDate) < new Date()
+  ) || [];
+  const upcomingMeetings = myTasks?.data?.filter((task: Task) => 
+    task.type === 'meeting' && task.status === 'Pending'
+  ) || [];
+
+  // Items due for ERU (Evidence Relied Upon)
+  const eruItems = activeCases.filter(caseItem => 
+    caseItem.status === CaseStatus.PendingERU || 
+    (caseItem.status === CaseStatus.Closed && !caseItem.eruCompleted)
+  );
+
+  // Cases requiring closeout meetings
+  const closeoutRequired = activeCases.filter(caseItem => 
+    caseItem.status === CaseStatus.Investigating && !caseItem.closeoutScheduled
+  );
+
+  // Priority notifications
+  const priorityNotifications = [
+    ...overdueTasks.map((task: Task) => ({
+      id: task.id,
+      type: 'overdue_task',
+      message: `Task "${task.title}" is overdue`,
+      priority: 'high',
+      date: task.dueDate
+    })),
+    ...eruItems.map(caseItem => ({
+      id: caseItem.id,
+      type: 'eru_required',
+      message: `ERU document required for Case ${caseItem.caseNumber}`,
+      priority: 'medium',
+      date: caseItem.closureDeadline
+    })),
+    ...closeoutRequired.map(caseItem => ({
+      id: caseItem.id,
+      type: 'closeout_meeting',
+      message: `Schedule closeout meeting for Case ${caseItem.caseNumber}`,
+      priority: 'medium',
+      date: caseItem.investigationDeadline
+    }))
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">My Workspace</h1>
+          <p className="text-gray-600">Welcome back, {CURRENT_USER.name}</p>
+        </div>
+        <div className="flex space-x-2">
+          <Button>
+            <Plus className="w-4 h-4 mr-2" />
+            New Case
+          </Button>
+          <Button variant="outline">
+            <Calendar className="w-4 h-4 mr-2" />
+            Schedule Meeting
+          </Button>
+        </div>
+      </div>
+
+      {/* Priority Notifications */}
+      {priorityNotifications.length > 0 && (
+        <Card className="border-orange-200 bg-orange-50">
+          <CardHeader>
+            <CardTitle className="flex items-center text-orange-800">
+              <Bell className="w-5 h-5 mr-2" />
+              Priority Items ({priorityNotifications.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {priorityNotifications.slice(0, 5).map((notification) => (
+                <div key={notification.id} className="flex items-center justify-between p-2 bg-white rounded border">
+                  <div className="flex items-center">
+                    <AlertTriangle className={`w-4 h-4 mr-2 ${
+                      notification.priority === 'high' ? 'text-red-500' : 'text-orange-500'
+                    }`} />
+                    <span className="text-sm">{notification.message}</span>
+                  </div>
+                  <Badge variant={notification.priority === 'high' ? 'destructive' : 'secondary'}>
+                    {notification.priority}
+                  </Badge>
+                </div>
+              ))}
+              {priorityNotifications.length > 5 && (
+                <div className="text-sm text-gray-500 text-center">
+                  and {priorityNotifications.length - 5} more items...
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Active Cases</p>
+                <p className="text-2xl font-bold">{activeCases.length}</p>
+              </div>
+              <Briefcase className="w-8 h-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Pending Tasks</p>
+                <p className="text-2xl font-bold">{pendingTasks.length}</p>
+              </div>
+              <Target className="w-8 h-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Upcoming Meetings</p>
+                <p className="text-2xl font-bold">{upcomingMeetings.length}</p>
+              </div>
+              <CalendarDays className="w-8 h-8 text-purple-500" />
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">ERU Items Due</p>
+                <p className="text-2xl font-bold">{eruItems.length}</p>
+              </div>
+              <FileText className="w-8 h-8 text-orange-500" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* My Active Cases */}
+        <Card>
+          <CardHeader>
+            <CardTitle>My Active Cases</CardTitle>
+            <CardDescription>Cases currently assigned to you</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {activeCases.length === 0 ? (
+              <p className="text-gray-500 text-center py-4">No active cases assigned</p>
+            ) : (
+              <div className="space-y-3">
+                {activeCases.slice(0, 5).map((caseItem) => (
+                  <div key={caseItem.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2">
+                        <span className="font-medium">{caseItem.caseNumber}</span>
+                        <Badge variant={
+                          caseItem.priority === 'High' ? 'destructive' :
+                          caseItem.priority === 'Medium' ? 'default' : 'secondary'
+                        }>
+                          {caseItem.priority}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-gray-600">{caseItem.description}</p>
+                      <div className="flex items-center text-xs text-gray-500 mt-1">
+                        <Clock className="w-3 h-3 mr-1" />
+                        Due: {new Date(caseItem.investigationDeadline).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-gray-400" />
+                  </div>
+                ))}
+                {activeCases.length > 5 && (
+                  <div className="text-center">
+                    <Button variant="ghost" size="sm">
+                      View all {activeCases.length} cases
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Upcoming Tasks & Meetings */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Upcoming Tasks & Meetings</CardTitle>
+            <CardDescription>Your schedule for the next few days</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {pendingTasks.length === 0 ? (
+              <p className="text-gray-500 text-center py-4">No upcoming tasks</p>
+            ) : (
+              <div className="space-y-3">
+                {pendingTasks.slice(0, 5).map((task) => (
+                  <div key={task.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2">
+                        {task.type === 'meeting' ? (
+                          <Users className="w-4 h-4 text-blue-500" />
+                        ) : (
+                          <FileText className="w-4 h-4 text-green-500" />
+                        )}
+                        <span className="font-medium">{task.title}</span>
+                        {task.dueDate && new Date(task.dueDate) < new Date() && (
+                          <Badge variant="destructive">Overdue</Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600">{task.description}</p>
+                      {task.dueDate && (
+                        <div className="flex items-center text-xs text-gray-500 mt-1">
+                          <Calendar className="w-3 h-3 mr-1" />
+                          {new Date(task.dueDate).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-gray-400" />
+                  </div>
+                ))}
+                {pendingTasks.length > 5 && (
+                  <div className="text-center">
+                    <Button variant="ghost" size="sm">
+                      View all {pendingTasks.length} tasks
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Action Items */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Items Requiring Action */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Items Requiring Action</CardTitle>
+            <CardDescription>Cases and tasks that need your immediate attention</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {/* ERU Items */}
+              {eruItems.map((caseItem) => (
+                <div key={`eru-${caseItem.id}`} className="flex items-center justify-between p-3 border rounded-lg bg-orange-50">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2">
+                      <FileText className="w-4 h-4 text-orange-500" />
+                      <span className="font-medium">ERU Required: {caseItem.caseNumber}</span>
+                    </div>
+                    <p className="text-sm text-gray-600">Evidence Relied Upon document needed</p>
+                  </div>
+                  <Button size="sm" variant="outline">
+                    Complete ERU
+                  </Button>
+                </div>
+              ))}
+
+              {/* Closeout Meetings */}
+              {closeoutRequired.map((caseItem) => (
+                <div key={`closeout-${caseItem.id}`} className="flex items-center justify-between p-3 border rounded-lg bg-blue-50">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="w-4 h-4 text-blue-500" />
+                      <span className="font-medium">Schedule Closeout: {caseItem.caseNumber}</span>
+                    </div>
+                    <p className="text-sm text-gray-600">Investigation complete, closeout meeting needed</p>
+                  </div>
+                  <Button size="sm" variant="outline">
+                    Schedule
+                  </Button>
+                </div>
+              ))}
+
+              {eruItems.length === 0 && closeoutRequired.length === 0 && (
+                <div className="text-center py-4">
+                  <CheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                  <p className="text-gray-500">All caught up! No immediate actions required.</p>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Activity */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+            <CardDescription>Your recent actions and updates</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-start space-x-3 p-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Case DIGS-2024-001 updated</p>
+                  <p className="text-xs text-gray-500">Status changed to "Investigating" • 2 hours ago</p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3 p-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Witness interview completed</p>
+                  <p className="text-xs text-gray-500">Case DIGS-2024-003 • 5 hours ago</p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3 p-2">
+                <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">ERU document submitted</p>
+                  <p className="text-xs text-gray-500">Case DIGS-2024-002 • 1 day ago</p>
+                </div>
+              </div>
+              <div className="flex items-start space-x-3 p-2">
+                <div className="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium">New case assigned</p>
+                  <p className="text-xs text-gray-500">Case DIGS-2024-004 • 2 days ago</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

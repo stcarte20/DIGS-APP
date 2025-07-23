@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { 
   LayoutDashboard, 
+  Briefcase,
   FileText, 
   Inbox, 
   Calendar, 
@@ -20,10 +21,16 @@ const cn = (...inputs: (string | undefined)[]) => {
 
 const navigationItems = [
   { 
-    name: 'Dashboard', 
-    href: '/dashboard', 
+    name: 'My Workspace', 
+    href: '/workspace', 
+    icon: Briefcase,
+    description: 'Personal dashboard and tasks'
+  },
+  { 
+    name: 'Overview', 
+    href: '/overview', 
     icon: LayoutDashboard,
-    description: 'Overview and metrics'
+    description: 'Analytics and metrics'
   },
   { 
     name: 'Cases', 

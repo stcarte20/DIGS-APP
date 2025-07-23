@@ -7,7 +7,7 @@ import { AlertTriangle, Clock, CheckCircle, FileText, Scale, TrendingDown } from
 import { dataverseService } from '../services/powerPlatform';
 import { DashboardMetrics, Case } from '../types';
 
-export function Dashboard() {
+export function Overview() {
   // Fetch dashboard metrics
   const { data: metrics, isLoading: metricsLoading } = useQuery({
     queryKey: ['dashboard-metrics'],

@@ -2,7 +2,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Sidebar } from './components/layout/Sidebar';
 import { TopNavigation } from './components/layout/TopNavigation';
-import { Dashboard } from './pages/Dashboard';
+import { Overview } from './pages/Overview';
+import { MyWorkspace } from './pages/MyWorkspace';
 import { Cases } from './pages/Cases';
 import { CaseDetail } from './pages/CaseDetail';
 import { Grievances } from './pages/Grievances';
@@ -39,8 +40,9 @@ function App() {
             <TopNavigation />
             <main className="flex-1 overflow-auto p-6">
               <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/" element={<MyWorkspace />} />
+                <Route path="/workspace" element={<MyWorkspace />} />
+                <Route path="/overview" element={<Overview />} />
                 <Route path="/cases" element={<Cases />} />
                 <Route path="/cases/:id" element={<CaseDetail />} />
                 <Route path="/grievances" element={<Grievances />} />
