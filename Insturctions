@@ -1,0 +1,9 @@
+Instructions
+This project is a Vite + React + TypeScript HR Investigations dashboard app. Use Tailwind CSS for styling and shadcn/ui for components. The app should have a sidebar, top navigation, and dashboard page with charts and metrics, plus routes for Cases, Intake, Calendar, Search, Reports, Settings, Profile, Notifications, Help, and Office365Test. The UI should be clean, modern, and professional, matching the look and feel of the previous app.
+
+You should look at https://github.com/microsoft/PowerAppsCodeApps for instuctions on how to set up the project for PowerApps Code Apps. 
+
+There should be a service for the following connections in the powerplatform:
+- Sharepoint
+- Dataverse
+- Office365Users
