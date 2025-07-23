@@ -36,14 +36,8 @@ export function Intake() {
   );
 }
 
-export function Calendar() {
-  return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Calendar</h1>
-      <p>Calendar view with deadlines will be implemented in Phase 4</p>
-    </div>
-  );
-}
+// Import and re-export the actual Calendar component
+export { Calendar } from './Calendar';
 
 export function Search() {
   return (

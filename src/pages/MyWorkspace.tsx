@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
@@ -28,6 +29,8 @@ const CURRENT_USER = {
 };
 
 export function MyWorkspace() {
+  const navigate = useNavigate();
+  
   // Fetch my assigned cases
   const { data: myCases, isLoading: casesLoading } = useQuery({
     queryKey: ['my-cases'],
@@ -108,29 +111,29 @@ export function MyWorkspace() {
           <p className="text-gray-600">Welcome back, {CURRENT_USER.name}</p>
         </div>
         <div className="flex space-x-2">
+          <Button variant="outline" onClick={() => navigate('/calendar')}>
+            <Calendar className="w-4 h-4 mr-2" />
+            My Calendar
+          </Button>
           <Button>
             <Plus className="w-4 h-4 mr-2" />
             New Case
           </Button>
-          <Button variant="outline">
-            <Calendar className="w-4 h-4 mr-2" />
-            Schedule Meeting
-          </Button>
         </div>
       </div>
 
-      {/* Priority Notifications */}
+      {/* Priority Notifications - Compact */}
       {priorityNotifications.length > 0 && (
         <Card className="border-orange-200 bg-orange-50">
-          <CardHeader>
-            <CardTitle className="flex items-center text-orange-800">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center text-orange-800 text-lg">
               <Bell className="w-5 h-5 mr-2" />
               Priority Items ({priorityNotifications.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {priorityNotifications.slice(0, 5).map((notification) => (
+              {priorityNotifications.slice(0, 3).map((notification) => (
                 <div key={notification.id} className="flex items-center justify-between p-2 bg-white rounded border">
                   <div className="flex items-center">
                     <AlertTriangle className={`w-4 h-4 mr-2 ${
@@ -138,14 +141,14 @@ export function MyWorkspace() {
                     }`} />
                     <span className="text-sm">{notification.message}</span>
                   </div>
-                  <Badge variant={notification.priority === 'high' ? 'destructive' : 'secondary'}>
+                  <Badge variant={notification.priority === 'high' ? 'destructive' : 'secondary'} className="text-xs">
                     {notification.priority}
                   </Badge>
                 </div>
               ))}
-              {priorityNotifications.length > 5 && (
-                <div className="text-sm text-gray-500 text-center">
-                  and {priorityNotifications.length - 5} more items...
+              {priorityNotifications.length > 3 && (
+                <div className="text-sm text-gray-500 text-center pt-1">
+                  +{priorityNotifications.length - 3} more items
                 </div>
               )}
             </div>
@@ -216,7 +219,7 @@ export function MyWorkspace() {
               <p className="text-gray-500 text-center py-4">No active cases assigned</p>
             ) : (
               <div className="space-y-3">
-                {activeCases.slice(0, 5).map((caseItem) => (
+                {activeCases.slice(0, 3).map((caseItem) => (
                   <div key={caseItem.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
@@ -228,7 +231,7 @@ export function MyWorkspace() {
                           {caseItem.priority}
                         </Badge>
                       </div>
-                      <p className="text-sm text-gray-600">{caseItem.description}</p>
+                      <p className="text-sm text-gray-600 truncate">{caseItem.description}</p>
                       <div className="flex items-center text-xs text-gray-500 mt-1">
                         <Clock className="w-3 h-3 mr-1" />
                         Due: {new Date(caseItem.investigationDeadline).toLocaleDateString()}
@@ -237,7 +240,7 @@ export function MyWorkspace() {
                     <ChevronRight className="w-4 h-4 text-gray-400" />
                   </div>
                 ))}
-                {activeCases.length > 5 && (
+                {activeCases.length > 3 && (
                   <div className="text-center">
                     <Button variant="ghost" size="sm">
                       View all {activeCases.length} cases
@@ -260,7 +263,7 @@ export function MyWorkspace() {
               <p className="text-gray-500 text-center py-4">No upcoming tasks</p>
             ) : (
               <div className="space-y-3">
-                {pendingTasks.slice(0, 5).map((task) => (
+                {pendingTasks.slice(0, 3).map((task) => (
                   <div key={task.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
@@ -274,7 +277,7 @@ export function MyWorkspace() {
                           <Badge variant="destructive">Overdue</Badge>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600">{task.description}</p>
+                      <p className="text-sm text-gray-600 truncate">{task.description}</p>
                       {task.dueDate && (
                         <div className="flex items-center text-xs text-gray-500 mt-1">
                           <Calendar className="w-3 h-3 mr-1" />
@@ -285,7 +288,7 @@ export function MyWorkspace() {
                     <ChevronRight className="w-4 h-4 text-gray-400" />
                   </div>
                 ))}
-                {pendingTasks.length > 5 && (
+                {pendingTasks.length > 3 && (
                   <div className="text-center">
                     <Button variant="ghost" size="sm">
                       View all {pendingTasks.length} tasks
@@ -350,14 +353,14 @@ export function MyWorkspace() {
           </CardContent>
         </Card>
 
-        {/* Recent Activity */}
+        {/* Recent Activity - Simplified */}
         <Card>
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Your recent actions and updates</CardDescription>
+            <CardDescription>Your latest updates</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div className="flex items-start space-x-3 p-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
                 <div className="flex-1">
@@ -379,12 +382,8 @@ export function MyWorkspace() {
                   <p className="text-xs text-gray-500">Case DIGS-2024-002 • 1 day ago</p>
                 </div>
               </div>
-              <div className="flex items-start space-x-3 p-2">
-                <div className="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">New case assigned</p>
-                  <p className="text-xs text-gray-500">Case DIGS-2024-004 • 2 days ago</p>
-                </div>
+              <div className="text-center pt-2">
+                <Button variant="ghost" size="sm">View All Activity</Button>
               </div>
             </div>
           </CardContent>
