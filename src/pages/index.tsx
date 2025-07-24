@@ -27,11 +27,16 @@ export function PRM() {
   );
 }
 
+import { NewCaseForm } from '../components/forms/NewCaseForm';
+
 export function Intake() {
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Case Intake</h1>
-      <p>Case intake form will be implemented in Phase 4</p>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold">Case Intake</h1>
+        <p className="text-gray-600">Submit a new incident report or concern</p>
+      </div>
+      <NewCaseForm />
     </div>
   );
 }

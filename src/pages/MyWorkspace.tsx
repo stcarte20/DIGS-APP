@@ -115,7 +115,7 @@ export function MyWorkspace() {
             <Calendar className="w-4 h-4 mr-2" />
             My Calendar
           </Button>
-          <Button>
+          <Button onClick={() => navigate('/intake')}>
             <Plus className="w-4 h-4 mr-2" />
             New Case
           </Button>
