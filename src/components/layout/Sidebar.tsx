@@ -143,12 +143,6 @@ const secondaryItems = [
     href: '/help', 
     icon: HelpCircle,
     description: 'Help and support'
-  },
-  { 
-    name: 'Office365 Test', 
-    href: '/office365test', 
-    icon: Shield,
-    description: 'Power Platform testing'
   }
 ];
 

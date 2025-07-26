@@ -7,8 +7,8 @@ import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Search, Plus, Filter, Eye, Clock, AlertTriangle } from 'lucide-react';
-import { dataverseService } from '../services/powerPlatform';
 import { Case, CaseSearchFilters, CaseStatus } from '../types';
+import { getCases } from '../data/mockCaseData';
 
 export function Cases() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,7 +22,7 @@ export function Cases() {
       const searchFilters: CaseSearchFilters = {
         searchTerm: searchTerm || undefined,
       };
-      return dataverseService.getCases(searchFilters, currentPage, pageSize);
+      return getCases(searchFilters, currentPage, pageSize);
     },
   });
 
@@ -100,7 +100,7 @@ export function Cases() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {cases.filter(c => 
+              {cases.filter((c: Case) => 
                 c.status !== CaseStatus.Closed && c.status !== CaseStatus.Archived
               ).length}
             </div>
@@ -115,7 +115,7 @@ export function Cases() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {cases.filter(c => c.riskScore >= 16).length}
+              {cases.filter((c: Case) => c.riskScore >= 16).length}
             </div>
             <p className="text-xs text-muted-foreground">Require priority attention</p>
           </CardContent>
@@ -128,7 +128,7 @@ export function Cases() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {cases.filter(c => {
+              {cases.filter((c: Case) => {
                 // Mock overdue calculation - in real app would check SLA events
                 const daysSinceDOK = Math.floor((Date.now() - new Date(c.dok).getTime()) / (1000 * 60 * 60 * 24));
                 return daysSinceDOK > 12; // AFA 12 business day rule

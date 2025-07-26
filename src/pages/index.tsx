@@ -97,12 +97,3 @@ export function Help() {
     </div>
   );
 }
-
-export function Office365Test() {
-  return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Office365 Test</h1>
-      <p>Power Platform integration testing will be implemented in Phase 4</p>
-    </div>
-  );
-}

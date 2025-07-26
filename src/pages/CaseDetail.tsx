@@ -18,8 +18,8 @@ import {
   CheckCircle,
   Plus
 } from 'lucide-react';
-import { dataverseService } from '../services/powerPlatform';
 import { Task, Note } from '../types';
+import { getCaseById, getTasksByCaseId, getNotesByCaseId } from '../data/mockCaseData';
 
 export function CaseDetail() {
   const { id } = useParams<{ id: string }>();
@@ -27,21 +27,21 @@ export function CaseDetail() {
   // Fetch case details
   const { data: case_, isLoading: caseLoading } = useQuery({
     queryKey: ['case', id],
-    queryFn: () => dataverseService.getCaseById(id!),
+    queryFn: () => getCaseById(id!),
     enabled: !!id,
   });
 
   // Fetch case tasks
   const { data: tasks, isLoading: tasksLoading } = useQuery({
     queryKey: ['case-tasks', id],
-    queryFn: () => dataverseService.getTasksByCaseId(id!),
+    queryFn: () => getTasksByCaseId(id!),
     enabled: !!id,
   });
 
   // Fetch case notes
   const { data: notes, isLoading: notesLoading } = useQuery({
     queryKey: ['case-notes', id],
-    queryFn: () => dataverseService.getNotesByCaseId(id!),
+    queryFn: () => getNotesByCaseId(id!),
     enabled: !!id,
   });
 

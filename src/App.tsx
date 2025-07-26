@@ -18,8 +18,7 @@ import {
   Settings, 
   Profile, 
   Notifications, 
-  Help, 
-  Office365Test 
+  Help
 } from './pages/index';
 import './index.css';
 
@@ -59,7 +58,6 @@ function App() {
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/notifications" element={<Notifications />} />
                 <Route path="/help" element={<Help />} />
-                <Route path="/office365test" element={<Office365Test />} />
               </Routes>
             </main>
           </div>

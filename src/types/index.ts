@@ -358,33 +358,6 @@ export interface GrievanceSearchFilters {
   searchTerm?: string;
 }
 
-// Power Platform Service Types
-export interface PowerPlatformConfig {
-  environment: string;
-  clientId: string;
-  tenantId: string;
-  dataverseUrl: string;
-  sharepointUrl: string;
-}
-
-export interface SharePointFile {
-  id: string;
-  name: string;
-  url: string;
-  size: number;
-  lastModified: Date;
-  mimeType: string;
-}
-
-export interface Office365User {
-  id: string;
-  displayName: string;
-  mail: string;
-  jobTitle?: string;
-  department?: string;
-  officeLocation?: string;
-}
-
 // Form and UI Types
 export interface FormField {
   name: string;

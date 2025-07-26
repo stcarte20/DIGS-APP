@@ -1,7 +1,7 @@
 {
   "name": "digs-app",
   "version": "0.1.0",
-  "description": "Digital Investigation and Grievance System - Power Apps Code Components Application",
+  "description": "Digital Investigation and Grievance System - React TypeScript Application",
   "type": "module",
   "scripts": {
     "dev": "vite",
