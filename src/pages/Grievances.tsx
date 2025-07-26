@@ -7,8 +7,8 @@ import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { Search, Plus, Filter, Eye, Scale, Clock, AlertTriangle, FileText } from 'lucide-react';
-import { dataverseService } from '../services/powerPlatform';
 import { Grievance, GrievanceSearchFilters, GrievanceStatus, GrievanceType } from '../types';
+import { getGrievances } from '../data/mockGrievanceData';
 
 export function Grievances() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,7 +22,7 @@ export function Grievances() {
       const searchFilters: GrievanceSearchFilters = {
         searchTerm: searchTerm || undefined,
       };
-      return dataverseService.getGrievances(searchFilters, currentPage, pageSize);
+      return getGrievances(searchFilters, currentPage, pageSize);
     },
   });
 
@@ -115,7 +115,7 @@ export function Grievances() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {grievances.filter(g => 
+              {grievances.filter((g: Grievance) => 
                 g.status !== GrievanceStatus.Closed
               ).length}
             </div>
@@ -130,7 +130,7 @@ export function Grievances() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {grievances.filter(g => g.type === GrievanceType.PostDisciplinary).length}
+              {grievances.filter((g: Grievance) => g.type === GrievanceType.PostDisciplinary).length}
             </div>
             <p className="text-xs text-muted-foreground">Challenging discipline</p>
           </CardContent>
@@ -143,7 +143,7 @@ export function Grievances() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {grievances.filter(g => isNearingDeadline(g.currentStepDueDate)).length}
+              {grievances.filter((g: Grievance) => isNearingDeadline(g.currentStepDueDate)).length}
             </div>
             <p className="text-xs text-muted-foreground">Within 3 days</p>
           </CardContent>

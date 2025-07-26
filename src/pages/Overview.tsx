@@ -4,20 +4,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { AlertTriangle, Clock, CheckCircle, FileText, Scale, TrendingDown } from 'lucide-react';
-import { dataverseService } from '../services/powerPlatform';
 import { DashboardMetrics, Case } from '../types';
+import { getCases, getDashboardMetrics } from '../data/mockCaseData';
 
 export function Overview() {
   // Fetch dashboard metrics
   const { data: metrics, isLoading: metricsLoading } = useQuery({
     queryKey: ['dashboard-metrics'],
-    queryFn: () => dataverseService.getDashboardMetrics(),
+    queryFn: () => getDashboardMetrics(),
   });
 
   // Fetch recent cases
   const { data: recentCases, isLoading: casesLoading } = useQuery({
     queryKey: ['recent-cases'],
-    queryFn: () => dataverseService.getCases(undefined, 1, 5),
+    queryFn: () => getCases(undefined, 1, 5),
   });
 
   // Mock data for charts

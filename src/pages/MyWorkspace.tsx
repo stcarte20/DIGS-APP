@@ -17,8 +17,9 @@ import {
   CalendarDays,
   Briefcase
 } from 'lucide-react';
-import { dataverseService } from '../services/powerPlatform';
-import { Task, CaseStatus } from '../types';
+import { Task, CaseStatus, Case } from '../types';
+import { getCases, getTasks } from '../data/mockCaseData';
+import { getGrievancesForWorkspace } from '../data/mockGrievanceData';
 
 // Mock current user - in production this would come from authentication
 const CURRENT_USER = {
@@ -34,19 +35,19 @@ export function MyWorkspace() {
   // Fetch my assigned cases
   const { data: myCases, isLoading: casesLoading } = useQuery({
     queryKey: ['my-cases'],
-    queryFn: () => dataverseService.getCases({ assignedTo: CURRENT_USER.id }),
+    queryFn: () => getCases({ assignedTo: CURRENT_USER.id }),
   });
 
   // Fetch my tasks
   const { data: myTasks, isLoading: tasksLoading } = useQuery({
     queryKey: ['my-tasks'],
-    queryFn: () => dataverseService.getTasks({ assignedTo: CURRENT_USER.id }),
+    queryFn: () => getTasks({ assignedTo: CURRENT_USER.id }),
   });
 
   // Fetch my grievances (if applicable to role)
   const { data: _myGrievances, isLoading: grievancesLoading } = useQuery({
     queryKey: ['my-grievances'],
-    queryFn: () => dataverseService.getGrievances({ assignedTo: CURRENT_USER.id }),
+    queryFn: () => getGrievancesForWorkspace(),
   });
 
   if (casesLoading || tasksLoading || grievancesLoading) {
@@ -67,13 +68,13 @@ export function MyWorkspace() {
   ) || [];
 
   // Items due for ERU (Evidence Relied Upon)
-  const eruItems = activeCases.filter(caseItem => 
+  const eruItems = activeCases.filter((caseItem: Case) => 
     caseItem.status === CaseStatus.PendingERU || 
     (caseItem.status === CaseStatus.Closed && !caseItem.eruCompleted)
   );
 
   // Cases requiring closeout meetings
-  const closeoutRequired = activeCases.filter(caseItem => 
+  const closeoutRequired = activeCases.filter((caseItem: Case) => 
     caseItem.status === CaseStatus.Investigating && !caseItem.closeoutScheduled
   );
 
@@ -86,17 +87,17 @@ export function MyWorkspace() {
       priority: 'high',
       date: task.dueDate
     })),
-    ...eruItems.map(caseItem => ({
+    ...eruItems.map((caseItem: Case) => ({
       id: caseItem.id,
       type: 'eru_required',
-      message: `ERU document required for Case ${caseItem.caseNumber}`,
+      message: `ERU document required for Case ${caseItem.primaryCaseId}`,
       priority: 'medium',
       date: caseItem.closureDeadline
     })),
-    ...closeoutRequired.map(caseItem => ({
+    ...closeoutRequired.map((caseItem: Case) => ({
       id: caseItem.id,
       type: 'closeout_meeting',
-      message: `Schedule closeout meeting for Case ${caseItem.caseNumber}`,
+      message: `Schedule closeout meeting for Case ${caseItem.primaryCaseId}`,
       priority: 'medium',
       date: caseItem.investigationDeadline
     }))
@@ -219,11 +220,11 @@ export function MyWorkspace() {
               <p className="text-gray-500 text-center py-4">No active cases assigned</p>
             ) : (
               <div className="space-y-3">
-                {activeCases.slice(0, 3).map((caseItem) => (
+                {activeCases.slice(0, 3).map((caseItem: Case) => (
                   <div key={caseItem.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
-                        <span className="font-medium">{caseItem.caseNumber}</span>
+                        <span className="font-medium">{caseItem.primaryCaseId}</span>
                         <Badge variant={
                           caseItem.priority === 'High' ? 'destructive' :
                           caseItem.priority === 'Medium' ? 'default' : 'secondary'
@@ -263,7 +264,7 @@ export function MyWorkspace() {
               <p className="text-gray-500 text-center py-4">No upcoming tasks</p>
             ) : (
               <div className="space-y-3">
-                {pendingTasks.slice(0, 3).map((task) => (
+                {pendingTasks.slice(0, 3).map((task: Task) => (
                   <div key={task.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50">
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
@@ -312,12 +313,12 @@ export function MyWorkspace() {
           <CardContent>
             <div className="space-y-3">
               {/* ERU Items */}
-              {eruItems.map((caseItem) => (
+              {eruItems.map((caseItem: Case) => (
                 <div key={`eru-${caseItem.id}`} className="flex items-center justify-between p-3 border rounded-lg bg-orange-50">
                   <div className="flex-1">
                     <div className="flex items-center space-x-2">
                       <FileText className="w-4 h-4 text-orange-500" />
-                      <span className="font-medium">ERU Required: {caseItem.caseNumber}</span>
+                      <span className="font-medium">ERU Required: {caseItem.primaryCaseId}</span>
                     </div>
                     <p className="text-sm text-gray-600">Evidence Relied Upon document needed</p>
                   </div>
@@ -328,12 +329,12 @@ export function MyWorkspace() {
               ))}
 
               {/* Closeout Meetings */}
-              {closeoutRequired.map((caseItem) => (
+              {closeoutRequired.map((caseItem: Case) => (
                 <div key={`closeout-${caseItem.id}`} className="flex items-center justify-between p-3 border rounded-lg bg-blue-50">
                   <div className="flex-1">
                     <div className="flex items-center space-x-2">
                       <Calendar className="w-4 h-4 text-blue-500" />
-                      <span className="font-medium">Schedule Closeout: {caseItem.caseNumber}</span>
+                      <span className="font-medium">Schedule Closeout: {caseItem.primaryCaseId}</span>
                     </div>
                     <p className="text-sm text-gray-600">Investigation complete, closeout meeting needed</p>
                   </div>
