@@ -97,6 +97,3 @@ export function Help() {
     </div>
   );
 }
-
-// Re-export Office365Test component
-export { Office365Test } from './Office365TestSimple';

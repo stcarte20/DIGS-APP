@@ -129,12 +129,29 @@ export function Cases() {
           <CardContent>
             <div className="text-2xl font-bold">
               {cases.filter((c: Case) => {
-                // Mock overdue calculation - in real app would check SLA events
-                const daysSinceDOK = Math.floor((Date.now() - new Date(c.dok).getTime()) / (1000 * 60 * 60 * 24));
-                return daysSinceDOK > 12; // AFA 12 business day rule
+                // Business day calculation for overdue cases
+                const calculateBusinessDays = (startDate: Date, endDate: Date) => {
+                  let businessDays = 0;
+                  let currentDate = new Date(startDate);
+                  
+                  while (currentDate <= endDate) {
+                    const dayOfWeek = currentDate.getDay();
+                    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+                      businessDays++;
+                    }
+                    currentDate.setDate(currentDate.getDate() + 1);
+                  }
+                  
+                  return businessDays - 1;
+                };
+                
+                const dokDate = new Date(c.dateOfKnowledge || c.dok);
+                const today = new Date();
+                const businessDaysElapsed = calculateBusinessDays(dokDate, today);
+                return businessDaysElapsed > 12; // AFA 12 business day rule
               }).length}
             </div>
-            <p className="text-xs text-muted-foreground">Past SLA deadline</p>
+            <p className="text-xs text-muted-foreground">Past AFA 12-day deadline</p>
           </CardContent>
         </Card>
       </div>
@@ -179,11 +196,12 @@ export function Cases() {
                 <TableRow>
                   <TableHead>Case ID</TableHead>
                   <TableHead>Employee</TableHead>
-                  <TableHead>Violation Type</TableHead>
+                  <TableHead>Concern Type</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Priority</TableHead>
                   <TableHead>Risk Level</TableHead>
                   <TableHead>DOK</TableHead>
-                  <TableHead>Base</TableHead>
+                  <TableHead>Location</TableHead>
                   <TableHead>Investigator</TableHead>
                   <TableHead>SLA Status</TableHead>
                   <TableHead>Actions</TableHead>
@@ -191,9 +209,37 @@ export function Cases() {
               </TableHeader>
               <TableBody>
                 {cases.map((case_: Case) => {
-                  const daysSinceDOK = Math.floor((Date.now() - new Date(case_.dok).getTime()) / (1000 * 60 * 60 * 24));
-                  const isOverdueSLA = daysSinceDOK > 12;
-                  const daysUntilSLA = 12 - daysSinceDOK;
+                  // Business day calculation for SLA
+                  const calculateBusinessDays = (startDate: Date, endDate: Date) => {
+                    let businessDays = 0;
+                    let currentDate = new Date(startDate);
+                    
+                    while (currentDate <= endDate) {
+                      const dayOfWeek = currentDate.getDay();
+                      if (dayOfWeek !== 0 && dayOfWeek !== 6) { // Not Sunday (0) or Saturday (6)
+                        businessDays++;
+                      }
+                      currentDate.setDate(currentDate.getDate() + 1);
+                    }
+                    
+                    return businessDays - 1; // Don't count incomplete current day
+                  };
+                  
+                  const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
+                  const today = new Date();
+                  const businessDaysElapsed = calculateBusinessDays(dokDate, today);
+                  const businessDaysRemaining = Math.max(0, 12 - businessDaysElapsed);
+                  const isOverdueSLA = businessDaysElapsed > 12;
+                  
+                  // Helper to get priority badge variant
+                  const getPriorityVariant = (urgency: string) => {
+                    switch (urgency) {
+                      case 'high': return 'destructive';
+                      case 'medium': return 'default';
+                      case 'low': return 'secondary';
+                      default: return 'outline';
+                    }
+                  };
 
                   return (
                     <TableRow key={case_.id}>
@@ -201,33 +247,72 @@ export function Cases() {
                         <div className="flex flex-col">
                           <span>{case_.primaryCaseId}</span>
                           <span className="text-xs text-muted-foreground">{case_.secondaryCaseId}</span>
+                          {case_.isPrmCase && (
+                            <Badge variant="outline" className="text-xs mt-1 w-fit">PRM</Badge>
+                          )}
+                          {case_.foiNeeded && (
+                            <Badge variant="outline" className="text-xs mt-1 w-fit bg-yellow-100 text-yellow-800">FOI</Badge>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col">
-                          <span>{case_.employeeFirstName} {case_.employeeLastName}</span>
-                          <span className="text-xs text-muted-foreground">ID: {case_.employeeId}</span>
+                          <span>{case_.subjectEmployee?.name || `${case_.employeeFirstName} ${case_.employeeLastName}`}</span>
+                          <span className="text-xs text-muted-foreground">
+                            ID: {case_.subjectEmployee?.id || case_.employeeId}
+                          </span>
+                          {case_.subjectEmployee?.jobTitle && (
+                            <span className="text-xs text-muted-foreground">{case_.subjectEmployee.jobTitle}</span>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{case_.violationType}</Badge>
+                        <div className="flex flex-col">
+                          <Badge variant="outline">{case_.concernType || case_.violationType}</Badge>
+                          {case_.contextTags && case_.contextTags.length > 0 && (
+                            <div className="mt-1 flex flex-wrap gap-1">
+                              {case_.contextTags.slice(0, 2).map((tag, index) => (
+                                <Badge key={index} variant="secondary" className="text-xs">
+                                  {tag.length > 15 ? `${tag.substring(0, 15)}...` : tag}
+                                </Badge>
+                              ))}
+                              {case_.contextTags.length > 2 && (
+                                <Badge variant="secondary" className="text-xs">
+                                  +{case_.contextTags.length - 2} more
+                                </Badge>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         {getStatusBadge(case_.status)}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={getPriorityVariant(case_.urgencyLevel || case_.priority.toLowerCase())}>
+                          {case_.urgencyLevel ? case_.urgencyLevel.toUpperCase() : case_.priority}
+                        </Badge>
                       </TableCell>
                       <TableCell>
                         {getRiskBadge(case_.riskScore)}
                       </TableCell>
                       <TableCell>
                         <div className="flex flex-col">
-                          <span>{new Date(case_.dok).toLocaleDateString()}</span>
+                          <span>{new Date(case_.dateOfKnowledge || case_.dok).toLocaleDateString()}</span>
                           <span className="text-xs text-muted-foreground">
-                            {daysSinceDOK} days ago
+                            {businessDaysElapsed} business days
                           </span>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="outline">{case_.baseLocation}</Badge>
+                        <div className="flex flex-col">
+                          {case_.location && (
+                            <span className="text-sm">{case_.location}</span>
+                          )}
+                          <Badge variant="outline" className="text-xs mt-1 w-fit">
+                            {case_.baseLocation}
+                          </Badge>
+                        </div>
                       </TableCell>
                       <TableCell>
                         <span className="text-sm">{case_.investigatorId}</span>
@@ -237,17 +322,22 @@ export function Cases() {
                           {isOverdueSLA ? (
                             <Badge variant="destructive" className="flex items-center">
                               <AlertTriangle className="h-3 w-3 mr-1" />
-                              Overdue
+                              Overdue ({Math.abs(businessDaysRemaining)}d)
                             </Badge>
-                          ) : daysUntilSLA <= 3 ? (
+                          ) : businessDaysRemaining <= 2 ? (
+                            <Badge variant="default" className="bg-orange-500 flex items-center">
+                              <Clock className="h-3 w-3 mr-1" />
+                              {businessDaysRemaining}d left
+                            </Badge>
+                          ) : businessDaysRemaining <= 4 ? (
                             <Badge variant="default" className="bg-yellow-500 flex items-center">
                               <Clock className="h-3 w-3 mr-1" />
-                              {daysUntilSLA}d left
+                              {businessDaysRemaining}d left
                             </Badge>
                           ) : (
                             <Badge variant="secondary" className="flex items-center">
                               <Clock className="h-3 w-3 mr-1" />
-                              {daysUntilSLA}d left
+                              {businessDaysRemaining}d left
                             </Badge>
                           )}
                         </div>

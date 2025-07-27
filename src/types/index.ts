@@ -143,6 +143,54 @@ export interface Case extends BaseEntity {
   closureDeadline: Date;
   closeoutScheduled: boolean;
   eruCompleted: boolean; // Evidence Relied Upon completed
+  
+  // Extended fields from intake form
+  subjectEmployee?: {
+    id: string;
+    name: string;
+    email: string;
+    jobTitle: string;
+    department: string;
+    officeLocation?: string;
+    manager?: {
+      id: string;
+      name: string;
+      email: string;
+      jobTitle: string;
+      department: string;
+    };
+  };
+  dateOfKnowledge: Date; // When the company was notified
+  location?: string; // Where the incident occurred
+  concernType: string; // Type of violation/concern
+  contextTags: string[]; // Selected tags for the concern type
+  witnesses: Array<{
+    id: string;
+    name?: string;
+    displayName?: string;
+    mail?: string;
+    type: 'employee' | 'external';
+    details?: string;
+    manager?: {
+      id: string;
+      name: string;
+      email: string;
+      jobTitle: string;
+      department: string;
+    };
+  }>;
+  urgencyLevel: 'low' | 'medium' | 'high';
+  isPrmCase: boolean;
+  foiNeeded: boolean; // Freedom of Information request needed
+  submitterId: string; // ID of the person who submitted the case
+  submitterInfo?: {
+    id: string;
+    name: string;
+    email: string;
+    jobTitle: string;
+    employeeNumber: string;
+    department: string;
+  };
 }
 
 export interface Task extends BaseEntity {

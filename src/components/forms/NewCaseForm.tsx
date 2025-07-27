@@ -112,6 +112,7 @@ interface FormData {
   witnesses: Witness[];
   urgencyLevel: 'low' | 'medium' | 'high';
   isPrmCase: boolean;
+  foiNeeded: boolean;
 }
 
 export function NewCaseForm() {
@@ -148,7 +149,8 @@ export function NewCaseForm() {
     description: '',
     witnesses: [],
     urgencyLevel: 'low',
-    isPrmCase: false
+    isPrmCase: false,
+    foiNeeded: false
   });
 
   // Search state
@@ -571,14 +573,6 @@ export function NewCaseForm() {
                 </div>
                 
                 {/* Manager Information Section */}
-                {/* DEBUG: Show manager state */}
-                <div className="mt-2 p-2 bg-yellow-100 border border-yellow-300 rounded text-xs">
-                  <p><strong>DEBUG:</strong></p>
-                  <p>subjectManager: {subjectManager ? `${subjectManager.displayName} (${subjectManager.jobTitle})` : 'null'}</p>
-                  <p>isLoadingManagers: {isLoadingManagers ? 'true' : 'false'}</p>
-                  <p>Condition (subjectManager || isLoadingManagers): {(subjectManager || isLoadingManagers) ? 'true' : 'false'}</p>
-                </div>
-                
                 {(subjectManager || isLoadingManagers) && (
                   <div className="mt-4 pt-4 border-t border-green-300">
                     <div className="flex items-center gap-2 mb-2">
@@ -857,22 +851,22 @@ export function NewCaseForm() {
           {/* Witnesses List */}
           {formData.witnesses.length > 0 && (
             <div className="space-y-2 mt-4">
-              <p className="text-sm font-medium">Added Witnesses:</p>
+              <p className="text-sm font-bold" style={{ color: '#8a3b0e' }}>Added Witnesses:</p>
               {formData.witnesses.map((witness) => {
                 const witnessManager = witness.type === 'employee' && witness.id ? witnessManagers.get(witness.id) : null;
                 
                 return (
-                <div key={witness.id} className="border rounded-lg bg-gray-50">
-                  <div className="flex items-center justify-between p-2">
+                <div key={witness.id} className="border-2 border-blue-200 rounded-lg bg-blue-50 shadow-sm">
+                  <div className="flex items-center justify-between p-3">
                     <div>
-                      <span className="font-medium">{witness.displayName || witness.name}</span>
+                      <span className="font-semibold text-blue-900">{witness.displayName || witness.name}</span>
                       {witness.mail && (
-                        <span className="text-sm text-gray-500 ml-2">({witness.mail})</span>
+                        <span className="text-sm text-blue-700 ml-2">({witness.mail})</span>
                       )}
                       {witness.details && (
-                        <span className="text-sm text-gray-500 ml-2">({witness.details})</span>
+                        <span className="text-sm text-blue-600 ml-2">({witness.details})</span>
                       )}
-                      <Badge variant="outline" className="ml-2 text-xs">
+                      <Badge variant={witness.type === 'employee' ? 'default' : 'secondary'} className="ml-2 text-xs">
                         {witness.type === 'employee' ? 'Employee' : 'External'}
                       </Badge>
                     </div>
@@ -880,6 +874,7 @@ export function NewCaseForm() {
                       variant="ghost"
                       size="sm"
                       onClick={() => removeWitness(witness.id)}
+                      className="hover:bg-red-100 hover:text-red-600"
                     >
                       <X className="w-4 h-4" />
                     </Button>
@@ -887,18 +882,19 @@ export function NewCaseForm() {
                   
                   {/* Manager Information for Employee Witnesses */}
                   {witness.type === 'employee' && witnessManager && (
-                    <div className="px-2 pb-2">
-                      <div className="bg-white p-2 rounded border border-gray-200">
-                        <div className="flex items-center gap-1 mb-1">
-                          <User className="h-3 w-3 text-gray-500" />
-                          <p className="text-xs font-medium text-gray-500">Direct Manager</p>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2 text-xs">
-                          <div>
-                            <span className="font-medium">{witnessManager.displayName}</span>
+                    <div className="px-3 pb-3">
+                      <div className="bg-white p-2 rounded border border-blue-300">
+                        <div className="flex items-center text-xs">
+                          <div className="flex items-center gap-1 mr-2">
+                            <User className="h-3 w-3 text-gray-500" />
+                            <span className="font-medium text-gray-500">Manager:</span>
                           </div>
-                          <div>
-                            <span className="text-gray-600">{witnessManager.jobTitle}</span>
+                          <div className="flex items-center gap-3">
+                            <span className="font-medium">{witnessManager.displayName || 'Unknown Manager'}</span>
+                            <span className="text-gray-600">•</span>
+                            <span className="text-gray-600">{witnessManager.jobTitle || 'Unknown Title'}</span>
+                            <span className="text-gray-600">•</span>
+                            <span className="text-gray-500">{witnessManager.userPrincipalName || witnessManager.mail || 'No email'}</span>
                           </div>
                         </div>
                       </div>
@@ -958,8 +954,38 @@ export function NewCaseForm() {
                 className="rounded"
               />
               <div className="flex-1">
-                <p className="font-medium text-yellow-700">Medium Priority</p>
-                <p className="text-sm text-gray-600">Expedited review needed</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-yellow-700">Medium Priority</p>
+                    <p className="text-sm text-gray-600">Expedited review needed</p>
+                  </div>
+                  {formData.urgencyLevel === 'medium' && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-700">FOI - Needed:</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFormData({ ...formData, foiNeeded: !formData.foiNeeded });
+                          }}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+                            formData.foiNeeded ? 'bg-green-600' : 'bg-gray-300'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                              formData.foiNeeded ? 'translate-x-6' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                        <span className="text-sm text-gray-600">
+                          {formData.foiNeeded ? 'Yes' : 'No'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             
@@ -977,8 +1003,38 @@ export function NewCaseForm() {
                 className="rounded"
               />
               <div className="flex-1">
-                <p className="font-medium text-red-700">High Priority</p>
-                <p className="text-sm text-gray-600">Immediate attention required</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-red-700">High Priority</p>
+                    <p className="text-sm text-gray-600">Immediate attention required</p>
+                  </div>
+                  {formData.urgencyLevel === 'high' && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-gray-700">FOI - Needed:</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFormData({ ...formData, foiNeeded: !formData.foiNeeded });
+                          }}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+                            formData.foiNeeded ? 'bg-green-600' : 'bg-gray-300'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                              formData.foiNeeded ? 'translate-x-6' : 'translate-x-1'
+                            }`}
+                          />
+                        </button>
+                        <span className="text-sm text-gray-600">
+                          {formData.foiNeeded ? 'Yes' : 'No'}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

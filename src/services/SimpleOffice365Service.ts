@@ -108,26 +108,82 @@ export class Office365Service {
         return null;
       }
 
-      // Try different user identifiers in order of preference
-      const possibleIds = [
-        { type: 'userPrincipalName', value: user.userPrincipalName },
+      // Primary attempt: Use userPrincipalName first as it's the most reliable for Manager API
+      if (user.userPrincipalName) {
+        try {
+          console.log('📋 Office365Service: Trying Manager_V2 endpoint with userPrincipalName:', user.userPrincipalName);
+          
+          const result = await Office365UsersService.Manager_V2(user.userPrincipalName);
+          console.log('📋 Office365Service: Manager_V2 API result for userPrincipalName:', result);
+
+          if (result && (result.isSuccess === true || result.success === true) && result.data) {
+            const managerData = result.data as any;
+            console.log('✅ Office365Service: Successfully got manager data with userPrincipalName:', managerData);
+            
+            return {
+              id: managerData.Id || managerData.id,
+              displayName: managerData.DisplayName || managerData.displayName,
+              jobTitle: managerData.JobTitle || managerData.jobTitle,
+              userPrincipalName: managerData.UserPrincipalName || managerData.userPrincipalName,
+              mail: managerData.Mail || managerData.mail,
+              givenName: managerData.GivenName || managerData.givenName,
+              surname: managerData.Surname || managerData.surname,
+              department: managerData.Department || managerData.department,
+              officeLocation: managerData.OfficeLocation || managerData.officeLocation,
+              employeeId: managerData.EmployeeId || managerData.employeeId
+            };
+          } else {
+            console.log('ℹ️ Office365Service: Manager API unsuccessful for userPrincipalName:', result);
+            
+            // Check for specific error messages
+            if (result && result.error) {
+              const errorMsg = result.error.message || result.error;
+              if (errorMsg.includes('404') || errorMsg.includes('No user found')) {
+                console.warn('⚠️ Office365Service: User not found with userPrincipalName - this might indicate the user ID format is incorrect or user doesn\'t exist');
+              } else if (errorMsg.includes('manager') || errorMsg.includes('Manager')) {
+                console.warn('⚠️ Office365Service: Manager-related error - user might not have a manager assigned');
+              }
+            }
+          }
+        } catch (error) {
+          console.warn('⚠️ Office365Service: Manager lookup failed for userPrincipalName:', error);
+          
+          // Log detailed error information
+          if (error && typeof error === 'object') {
+            console.log('🔍 Office365Service: Detailed error analysis:', {
+              errorType: typeof error,
+              errorMessage: (error as any).message,
+              errorStatus: (error as any).status,
+              errorRequestId: (error as any).requestId
+            });
+          }
+        }
+      }
+
+      // Fallback: Try other identifiers if userPrincipalName fails
+      const fallbackIds = [
         { type: 'mail', value: user.mail },
         { type: 'employeeId', value: user.employeeId },
         { type: 'id', value: user.id }
       ].filter(item => item.value);
 
-      console.log('📋 Office365Service: Available user identifiers:', possibleIds);
+      console.log('📋 Office365Service: Trying fallback identifiers:', fallbackIds);
 
-      for (const identifier of possibleIds) {
+      for (const identifier of fallbackIds) {
         try {
-          console.log(`📋 Office365Service: Trying Manager endpoint with ${identifier.type}:`, identifier.value);
+          console.log(`📋 Office365Service: Trying Manager_V2 endpoint with ${identifier.type}:`, identifier.value);
           
-          const result = await Office365UsersService.Manager(identifier.value);
-          console.log(`📋 Office365Service: Manager API result for ${identifier.type}:`, result);
+          if (!identifier.value) {
+            console.warn(`⚠️ Office365Service: Skipping ${identifier.type} - value is empty`);
+            continue;
+          }
+          
+          const result = await Office365UsersService.Manager_V2(identifier.value);
+          console.log(`📋 Office365Service: Manager_V2 API result for ${identifier.type}:`, result);
 
           if (result && (result.isSuccess === true || result.success === true) && result.data) {
             const managerData = result.data as any;
-            console.log('✅ Office365Service: Successfully got manager data:', managerData);
+            console.log(`✅ Office365Service: Successfully got manager data with ${identifier.type}:`, managerData);
             
             return {
               id: managerData.Id || managerData.id,
@@ -143,6 +199,17 @@ export class Office365Service {
             };
           } else {
             console.log(`ℹ️ Office365Service: Manager API unsuccessful for ${identifier.type}:`, result);
+            
+            // Enhanced error analysis for fallback identifiers
+            if (result && result.error) {
+              const errorMsg = result.error.message || result.error;
+              console.log(`🔍 Office365Service: Error details for ${identifier.type}:`, {
+                status: result.error.status,
+                message: errorMsg,
+                identifierUsed: identifier.value,
+                identifierType: identifier.type
+              });
+            }
           }
         } catch (identifierError) {
           console.warn(`⚠️ Office365Service: Manager lookup failed for ${identifier.type}:`, identifierError);
@@ -150,6 +217,12 @@ export class Office365Service {
       }
 
       console.log('ℹ️ Office365Service: No manager found with any identifier');
+      console.log('🔍 Office365Service: Possible reasons:');
+      console.log('   1. User does not exist in Office 365 directory');
+      console.log('   2. User exists but has no manager assigned');
+      console.log('   3. Identifier format is incorrect for Manager API');
+      console.log('   4. Permissions issue - connector may not have access to manager data');
+      
       return null;
       
     } catch (error) {
