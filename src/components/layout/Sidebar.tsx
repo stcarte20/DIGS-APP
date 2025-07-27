@@ -117,7 +117,7 @@ const navigationStructure = [
       },
       {
         name: 'Office 365 Test',
-        href: '/office365-test',
+        href: '/office365TestSimple',
         icon: Shield,
         description: 'Office 365 integration test'
       }

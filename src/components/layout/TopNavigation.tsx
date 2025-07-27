@@ -1,8 +1,39 @@
+import { useState, useEffect } from 'react';
 import { Bell, User, LogOut } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
+import { Office365Service, type Office365User as SimpleUser } from '../../services/SimpleOffice365Service';
 
 export function TopNavigation() {
+  const [user, setUser] = useState<SimpleUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadUserProfile = async () => {
+      try {
+        // Get current user profile using simplified Office365 service
+        const profile = await Office365Service.getCurrentUser();
+        setUser(profile);
+        
+        // Note: User photo functionality not implemented in consolidated service
+        // if (profile?.id) {
+        //   const photoData = await Office365Service.getUserPhoto(profile.id);
+        //   if (photoData) {
+        //     setUserPhoto(`data:image/jpeg;base64,${photoData}`);
+        //   }
+        // }
+      } catch (error) {
+        console.error('Error loading user profile:', error);
+        // Don't set fallback data - let it remain null to show real connection status
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadUserProfile();
+  }, []);
+
   return (
     <header className="flex items-center justify-between h-16 px-6 border-b bg-card">
       {/* Page Title */}
@@ -41,8 +72,30 @@ export function TopNavigation() {
             <User className="h-5 w-5" />
           </Button>
           <div className="hidden md:block">
-            <p className="text-sm font-medium">John Investigator</p>
-            <p className="text-xs text-muted-foreground">Senior Investigator</p>
+            {isLoading ? (
+              <div className="animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-24 mb-1"></div>
+                <div className="h-3 bg-gray-200 rounded w-20"></div>
+              </div>
+            ) : user ? (
+              <>
+                <p className="text-sm font-medium">
+                  {user.displayName}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {user.jobTitle || 'No job title'}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-medium text-red-600">
+                  Office365 Not Connected
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Check Power Platform connection
+                </p>
+              </>
+            )}
           </div>
         </div>
 

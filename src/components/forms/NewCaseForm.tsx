@@ -1,9 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Textarea } from '../ui/textarea';
 import { Badge } from '../ui/badge';
 import { 
   User, 
@@ -18,135 +16,346 @@ import {
   X,
   CheckCircle,
   Users,
-  Shield
+  Shield,
+  Loader2
 } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { Office365Service, Office365User } from '../../services/SimpleOffice365Service';
 
-// Mock current user - in production this would come from Office365 authentication
-const CURRENT_USER = {
+// Current user interface for Office365 data
+interface CurrentUser {
+  id?: string;
+  name: string;
+  employeeNumber: string;
+  jobTitle: string;
+  email: string;
+  department: string;
+}
+
+// Witness interface that can handle both Office365 users and external witnesses
+interface Witness {
+  id: string;
+  name?: string; // For external witnesses
+  displayName?: string; // For Office365 users
+  mail?: string; // For Office365 users
+  type: 'employee' | 'external';
+  details?: string;
+}
+
+// Default current user (fallback if Office365 fails)
+const DEFAULT_USER: CurrentUser = {
   id: 'user-1',
-  name: 'John Investigator',
-  employeeNumber: 'EMP001',
-  jobTitle: 'Senior Investigator',
-  email: 'john.investigator@company.com',
-  department: 'Human Resources'
+  name: 'Loading User...',
+  employeeNumber: 'Loading...',
+  jobTitle: 'Loading...',
+  email: 'Loading...',
+  department: 'Loading...'
 };
 
-// Mock Office365 users for search - in production this would come from Office365 connector
-const MOCK_USERS = [
-  {
-    id: 'user-2',
-    name: 'Jane Smith',
-    employeeNumber: 'EMP002',
-    jobTitle: 'Bus Operator',
-    email: 'jane.smith@company.com',
-    department: 'Transportation',
-    manager: 'Mike Johnson',
-    phone: '(555) 123-4567'
-  },
-  {
-    id: 'user-3',
-    name: 'Robert Brown',
-    employeeNumber: 'EMP003',
-    jobTitle: 'Maintenance Technician',
-    email: 'robert.brown@company.com',
-    department: 'Maintenance',
-    manager: 'Sarah Wilson',
-    phone: '(555) 234-5678'
-  },
-  {
-    id: 'user-4',
-    name: 'Lisa Davis',
-    employeeNumber: 'EMP004',
-    jobTitle: 'Dispatcher',
-    email: 'lisa.davis@company.com',
-    department: 'Operations',
-    manager: 'Tom Anderson',
-    phone: '(555) 345-6789'
-  }
-];
+// Updated concern categories with associated tags
+const CONCERN_CATEGORIES = {
+  'Performance Issues': [
+    'Misuse of Time', 'Sitting in Passenger seats', 'Red Flags', 'Misuse of Authority',
+    'Threatening, Intimidating, Discourteous Behavior', 'Call Avoidance', 'Refusal to fly',
+    'NME - Failure to Follow Instructions', 'Insubordination after directive', 'Personal Electronic Device',
+    'Sleeping on Job', 'Causes a delay', 'Failure of Covid Safety Compliance', 'Public Announcement',
+    'Going off script', 'Safety - Ground Work Practices', 'Disconnects from a guest',
+    'Use of InFlight Entertainment', 'Agent Release Does Not Self Report', 'Attendance Points',
+    'Lying during an investigation', 'Not Meeting Expectations (Training not completed)', 'Poor conduct',
+    'Dishonesty', 'No Call, No Show', 'Electronic Device usage', 'Rude to guest or yells',
+    'IMD', 'TFP', 'NME - Work Quality/Compliance'
+  ],
+  'Financial Fraud': ['Sick Leave Abuse', 'Medical Leave', 'Fraud to Obtain Benefits'],
+  'Workplace Environment': [
+    'Hotel Behavior', 'Layover', 'Workplace Violence/Retaliation', 'Inappropriate Material in Workplace'
+  ],
+  'CBA Violation': ['Commuter Policy', 'Crew Hotel', 'Trip Trading'],
+  'Non-rev Travel Privileges': ['Travel Violations'],
+  'Violation of Policy': [
+    'Inappropriate Conduct', 'Misuse of Guest/Empl. Personal Info.', 'Discrimination', 'Gambling',
+    'Possession of Firearms/Weapons', 'Company Intellectual Property', 'Conflict of Interest',
+    'Falsification of Records', 'Uniform Compliance', 'Failure to report for work as scheduled',
+    'Certification Compliance', 'Crew Conflict/Behavior', 'Job Abandonment'
+  ],
+  'Harassment - Sexual': ['Sexual Harassment'],
+  'Confidentiality': ['Inappropriate use of Social Media'],
+  'Harassment - non-sexual': [
+    'Fighting/Horseplay', 'Intimidation', 'Profanity directed at a supervisor', 'Uses profanity with a guest'
+  ],
+  'Theft': ['Theft of Guest/Company Property', 'Theft of Money', 'Theft of Time', 'Unauthorized LOA'],
+  'Employment': [
+    'Criminal Offense', 'Walks out of an investigation', 'Refuses to respond to investigative inquiries'
+  ],
+  'Fitness for Duty': [
+    'Drug or Alcohol', 'Failed Drug Test', 'Appearance of sleeping', 'Failed test, Positive Random Test, DOT Testing'
+  ],
+  'PI - Safety': [
+    'Negligence or damaging company property', 'Repeated Recklessness', 'Security',
+    'Unauthorized/ Misuse of Company Property', 'Errors - Threat to Passenger Safety',
+    'Working with Known Covid Exposure'
+  ],
+  'Contract Grievance': [
+    'Overtime Bypass', 'Holiday Bid', 'Mandatory Overtime Violation', 'Late Lunch/No Lunch',
+    'Supv Record of Discussion', 'Mgmt. Doing Union Work', 'Aircraft Safety', 'Flight Recorder Data',
+    'Outsourcing of Work', 'Travel Restriction', 'CBT Violation', 'Paid Time', 'Restricted Trade', 'Other'
+  ]
+};
 
-const CONCERN_TYPES = [
-  'Delay',
-  'Commuter',
-  'Misconduct (General)',
-  'Sick Abuse',
-  'EEO (Discrimination)',
-  'Harassment',
-  'Social Media',
-  'Attendance (12 Points)',
-  'Drug and Alcohol'
-];
+const CONCERN_TYPES = Object.keys(CONCERN_CATEGORIES);
 
 interface FormData {
-  subjectEmployee: any | null;
+  subjectEmployee: Office365User | null;
   incidentDate: string;
   dateOfKnowledge: string;
   concernType: string;
+  contextTags: string[];
   description: string;
-  witnesses: Array<{ id: string; name: string; type: 'employee' | 'external'; details?: string }>;
+  witnesses: Witness[];
   urgencyLevel: 'low' | 'medium' | 'high';
+  isPrmCase: boolean;
 }
 
 export function NewCaseForm() {
+  // Helper functions to safely extract user data
+  const getUserDisplayName = (user: Office365User): string => {
+    return user.displayName || 'Unknown User';
+  };
+
+  const getUserEmail = (user: Office365User): string => {
+    return user.userPrincipalName || user.mail || 'No email';
+  };
+
+  const getUserJobTitle = (user: Office365User): string => {
+    return user.jobTitle || 'No title';
+  };
+
+  const getUserId = (user: Office365User): string => {
+    return user.id || user.userPrincipalName || `user-${Date.now()}`;
+  };
+
+
+
+  // Current user state
+  const [currentUser, setCurrentUser] = useState<CurrentUser>(DEFAULT_USER);
+  const [isLoadingCurrentUser, setIsLoadingCurrentUser] = useState(true);
+  
+  // Form state
   const [formData, setFormData] = useState<FormData>({
     subjectEmployee: null,
     incidentDate: '',
     dateOfKnowledge: '',
     concernType: '',
+    contextTags: [],
     description: '',
     witnesses: [],
-    urgencyLevel: 'low'
+    urgencyLevel: 'low',
+    isPrmCase: false
   });
 
+  // Search state
   const [searchQuery, setSearchQuery] = useState('');
   const [showUserSearch, setShowUserSearch] = useState(false);
+  const [searchResults, setSearchResults] = useState<Office365User[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  
+  // Witness search state
   const [witnessSearchQuery, setWitnessSearchQuery] = useState('');
   const [showWitnessSearch, setShowWitnessSearch] = useState(false);
+  const [witnessSearchResults, setWitnessSearchResults] = useState<Office365User[]>([]);
+  const [isSearchingWitnesses, setIsSearchingWitnesses] = useState(false);
+  
+  // External witness state
   const [externalWitnessName, setExternalWitnessName] = useState('');
   const [externalWitnessDetails, setExternalWitnessDetails] = useState('');
 
-  const filteredUsers = MOCK_USERS.filter(user =>
-    user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.employeeNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Manager information state
+  const [subjectManager, setSubjectManager] = useState<Office365User | null>(null);
+  const [witnessManagers, setWitnessManagers] = useState<Map<string, Office365User>>(new Map());
+  const [isLoadingManagers, setIsLoadingManagers] = useState(false);
 
-  const filteredWitnessUsers = MOCK_USERS.filter(user =>
-    user.name.toLowerCase().includes(witnessSearchQuery.toLowerCase()) ||
-    user.employeeNumber.toLowerCase().includes(witnessSearchQuery.toLowerCase()) ||
-    user.email.toLowerCase().includes(witnessSearchQuery.toLowerCase())
-  );
+  // Load current user on component mount
+  useEffect(() => {
+    const loadCurrentUser = async () => {
+      try {
+        const user = await Office365Service.getCurrentUser();
+        if (user) {
+          setCurrentUser({
+            id: user.id || 'current-user',
+            name: user.displayName || 'Unknown User',
+            employeeNumber: user.employeeId|| 'Unknown',
+            jobTitle: user.jobTitle || 'Unknown Title',
+            email: user.userPrincipalName || 'unknown@company.com',
+            department: 'Unknown Department' // Office365 doesn't always have department
+          });
+        } else {
+          console.warn('Failed to load current user from Office365');
+          setCurrentUser({
+            id: 'fallback-user',
+            name: 'Office365 User (Not Connected)',
+            employeeNumber: 'N/A',
+            jobTitle: 'N/A',
+            email: 'N/A',
+            department: 'N/A'
+          });
+        }
+      } catch (error) {
+        console.error('Error loading current user:', error);
+        setCurrentUser({
+          id: 'error-user',
+          name: 'Error Loading User',
+          employeeNumber: 'Error',
+          jobTitle: 'Error',
+          email: 'Error',
+          department: 'Error'
+        });
+      } finally {
+        setIsLoadingCurrentUser(false);
+      }
+    };
 
-  const handleSubjectSelect = (user: any) => {
-    setFormData({ ...formData, subjectEmployee: user });
-    setShowUserSearch(false);
-    setSearchQuery('');
+    loadCurrentUser();
+  }, []);
+
+  // Search for employees using Office365
+  const handleEmployeeSearch = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const searchResult = await Office365Service.searchUsers(query);
+      
+      if (searchResult.success && searchResult.processedUsers) {
+        setSearchResults(searchResult.processedUsers);
+      } else {
+        setSearchResults([]);
+      }
+    } catch (error) {
+      console.error('Error searching employees:', error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
   };
 
-  const handleWitnessSelect = (user: any) => {
-    const newWitness = {
-      id: user.id,
-      name: user.name,
-      type: 'employee' as const,
-      details: `${user.jobTitle} - ${user.department}`
+  // Search for witness employees using Office365
+  const handleWitnessSearch = async (query: string) => {
+    if (!query.trim()) {
+      setWitnessSearchResults([]);
+      return;
+    }
+
+    setIsSearchingWitnesses(true);
+    try {
+      const searchResult = await Office365Service.searchUsers(query);
+      
+      if (searchResult.success && searchResult.processedUsers) {
+        setWitnessSearchResults(searchResult.processedUsers);
+      } else {
+        setWitnessSearchResults([]);
+      }
+    } catch (error) {
+      console.error('Error searching witnesses:', error);
+      setWitnessSearchResults([]);
+    } finally {
+      setIsSearchingWitnesses(false);
+    }
+  };
+
+  // Handle search input changes with debouncing
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (searchQuery) {
+        handleEmployeeSearch(searchQuery);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (witnessSearchQuery) {
+        handleWitnessSearch(witnessSearchQuery);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [witnessSearchQuery]);
+
+  const handleSubjectSelect = (user: Office365User) => {
+    const selectedUser = {
+      ...user,
+      displayName: getUserDisplayName(user),
+      userPrincipalName: getUserEmail(user),
+      jobTitle: getUserJobTitle(user),
+      id: getUserId(user)
     };
     
-    if (!formData.witnesses.find(w => w.id === user.id)) {
+    setFormData({ ...formData, subjectEmployee: selectedUser });
+    setShowUserSearch(false);
+    setSearchQuery('');
+    setSearchResults([]);
+    
+    // Load manager information for the selected subject
+    loadManagerForUser(selectedUser, 'subject');
+  };
+
+  const loadManagerForUser = async (user: Office365User, userType: 'subject' | 'witness') => {
+    try {
+      setIsLoadingManagers(true);
+      console.log('🔍 Loading manager for user:', user.displayName, 'type:', userType);
+      
+      const manager = await Office365Service.getUserManager(user);
+      
+      if (manager) {
+        console.log('✅ Found manager:', manager.displayName);
+        if (userType === 'subject') {
+          setSubjectManager(manager);
+        } else if (userType === 'witness' && user.id) {
+          setWitnessManagers(prev => new Map(prev.set(user.id!, manager)));
+        }
+      } else {
+        console.log('ℹ️ No manager found for user:', user.displayName);
+        if (userType === 'subject') {
+          setSubjectManager(null);
+        }
+      }
+    } catch (error) {
+      console.error('❌ Error loading manager:', error);
+    } finally {
+      setIsLoadingManagers(false);
+    }
+  };
+
+  const handleWitnessSelect = (user: Office365User) => {
+    const newWitness: Witness = {
+      id: getUserId(user),
+      displayName: getUserDisplayName(user),
+      mail: getUserEmail(user),
+      type: 'employee' as const,
+      details: `${getUserJobTitle(user)} - ${user.department || 'Unknown Department'}`
+    };
+    
+    if (!formData.witnesses.find(w => w.id === newWitness.id)) {
       setFormData({
         ...formData,
         witnesses: [...formData.witnesses, newWitness]
       });
+      
+      // Load manager information for the witness
+      loadManagerForUser(user, 'witness');
     }
     
     setShowWitnessSearch(false);
     setWitnessSearchQuery('');
+    setWitnessSearchResults([]);
   };
 
   const handleAddExternalWitness = () => {
     if (externalWitnessName.trim()) {
-      const newWitness = {
+      const newWitness: Witness = {
         id: `external-${Date.now()}`,
         name: externalWitnessName,
         type: 'external' as const,
@@ -167,6 +376,13 @@ export function NewCaseForm() {
     setFormData({
       ...formData,
       witnesses: formData.witnesses.filter(w => w.id !== witnessId)
+    });
+    
+    // Remove manager information for this witness
+    setWitnessManagers(prev => {
+      const newMap = new Map(prev);
+      newMap.delete(witnessId);
+      return newMap;
     });
   };
 
@@ -196,27 +412,41 @@ export function NewCaseForm() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-white rounded-lg border">
             <div>
-              <Label className="text-sm font-medium text-gray-600">Submitter Name</Label>
-              <p className="font-semibold">{CURRENT_USER.name}</p>
+              <p className="text-sm font-medium text-gray-600">Submitter Name</p>
+              {isLoadingCurrentUser ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Loading...</span>
+                </div>
+              ) : (
+                <p className="font-semibold">{currentUser.name}</p>
+              )}
             </div>
             <div>
-              <Label className="text-sm font-medium text-gray-600">Employee Number</Label>
-              <p className="font-semibold">{CURRENT_USER.employeeNumber}</p>
+              <p className="text-sm font-medium text-gray-600">Employee Number</p>
+              {isLoadingCurrentUser ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Loading...</span>
+                </div>
+              ) : (
+                <p className="font-semibold">{currentUser.employeeNumber}</p>
+              )}
             </div>
             <div>
-              <Label className="text-sm font-medium text-gray-600">Job Title</Label>
-              <p className="font-semibold">{CURRENT_USER.jobTitle}</p>
+              <p className="text-sm font-medium text-gray-600">Job Title</p>
+              <p className="font-semibold">{currentUser.jobTitle}</p>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Subject Information */}
+      {/* Subject Employee Search */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <User className="w-5 h-5 mr-2 text-blue-500" />
-            Subject Information
+          <CardTitle className="flex items-center gap-2 text-xl text-[#01426a]">
+            <User className="h-6 w-6" />
+            Subject Employee
           </CardTitle>
           <CardDescription>
             Search and select the employee involved in the incident using Microsoft Graph
@@ -224,13 +454,12 @@ export function NewCaseForm() {
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="subject-search">Subject Employee *</Label>
+            <p className="text-sm font-medium mb-2">Subject Employee *</p>
             <div className="relative">
               <div className="flex space-x-2">
                 <div className="flex-1">
                   <Input
-                    id="subject-search"
-                    placeholder="Search for the subject employee (try 'Anna' or 'Zach')"
+                    placeholder="Search for the subject employee (try 'Anne' or 'Zach')"
                     value={searchQuery}
                     onChange={(e) => {
                       setSearchQuery(e.target.value);
@@ -245,23 +474,44 @@ export function NewCaseForm() {
               {showUserSearch && searchQuery && (
                 <Card className="absolute z-10 w-full mt-1 max-h-60 overflow-auto">
                   <CardContent className="p-2">
-                    {filteredUsers.length > 0 ? (
+                    {isSearching ? (
+                      <div className="flex items-center gap-2 p-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Searching Office365 users...</span>
+                      </div>
+                    ) : searchResults.length > 0 ? (
                       <div className="space-y-1">
-                        {filteredUsers.map((user) => (
+                        {searchResults.map((user, index) => {
+                          const displayName = getUserDisplayName(user);
+                          const email = getUserEmail(user);
+                          const jobTitle = getUserJobTitle(user);
+                          const userId = getUserId(user);
+                          
+                          console.log(`🔍 [NewCaseForm] Rendering user ${index}:`, {
+                            user,
+                            userKeys: Object.keys(user),
+                            extractedDisplayName: displayName,
+                            extractedEmail: email,
+                            extractedJobTitle: jobTitle,
+                            extractedUserId: userId
+                          });
+                          
+                          return (
                           <Button
-                            key={user.id}
+                            key={userId}
                             variant="ghost"
                             className="w-full justify-start p-2 h-auto"
                             onClick={() => handleSubjectSelect(user)}
                           >
                             <div className="text-left">
-                              <div className="font-medium">{user.name}</div>
+                              <div className="font-medium">{displayName}</div>
                               <div className="text-sm text-gray-500">
-                                {user.employeeNumber} • {user.jobTitle}
+                                {email} • {jobTitle}
                               </div>
                             </div>
                           </Button>
-                        ))}
+                          );
+                        })}
                       </div>
                     ) : (
                       <p className="text-gray-500 text-center py-2">No employees found</p>
@@ -278,92 +528,128 @@ export function NewCaseForm() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Name</Label>
-                      <p className="font-semibold">{formData.subjectEmployee.name}</p>
+                      <p className="text-sm font-medium text-gray-600">Name</p>
+                      <p className="font-semibold">{formData.subjectEmployee.displayName || 'Unknown User'}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Employee Number</Label>
-                      <p className="font-semibold">{formData.subjectEmployee.employeeNumber}</p>
+                      <p className="text-sm font-medium text-gray-600">Email</p>
+                      <p className="font-semibold">{formData.subjectEmployee.userPrincipalName || formData.subjectEmployee.mail || 'No email'}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Job Title</Label>
-                      <p className="font-semibold">{formData.subjectEmployee.jobTitle}</p>
+                      <p className="text-sm font-medium text-gray-600">Job Title</p>
+                      <p className="font-semibold">{formData.subjectEmployee.jobTitle || 'Unknown Title'}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Department</Label>
-                      <p className="font-semibold">{formData.subjectEmployee.department}</p>
+                      <p className="text-sm font-medium text-gray-600">Department</p>
+                      <p className="font-semibold">{formData.subjectEmployee.department || 'Unknown Department'}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Manager</Label>
-                      <p className="font-semibold">{formData.subjectEmployee.manager}</p>
+                      <p className="text-sm font-medium text-gray-600">Office Location</p>
+                      <p className="font-semibold">{formData.subjectEmployee.officeLocation || 'Unknown Location'}</p>
                     </div>
                     <div>
-                      <Label className="text-sm font-medium text-gray-600">Contact</Label>
-                      <p className="font-semibold">{formData.subjectEmployee.phone}</p>
+                      <p className="text-sm font-medium text-gray-600">Employee ID</p>
+                      <p className="font-semibold text-xs">{formData.subjectEmployee.id || 'Unknown ID'}</p>
                     </div>
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setFormData({ ...formData, subjectEmployee: null })}
+                    onClick={() => {
+                      setFormData({ ...formData, subjectEmployee: null });
+                      setSubjectManager(null); // Clear manager when clearing subject
+                    }}
                   >
                     <X className="w-4 h-4" />
                   </Button>
                 </div>
+                
+                {/* Manager Information Section */}
+                {(subjectManager || isLoadingManagers) && (
+                  <div className="mt-4 pt-4 border-t border-green-300">
+                    <div className="flex items-center gap-2 mb-2">
+                      <User className="h-4 w-4 text-green-600" />
+                      <p className="text-sm font-medium text-green-600">Direct Manager</p>
+                    </div>
+                    {isLoadingManagers ? (
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Loading manager information...</span>
+                      </div>
+                    ) : subjectManager ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-white p-3 rounded border border-green-200">
+                        <div>
+                          <p className="text-xs font-medium text-gray-600">Manager Name</p>
+                          <p className="text-sm font-semibold">{subjectManager.displayName || 'Unknown Manager'}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-gray-600">Manager Email</p>
+                          <p className="text-sm font-semibold">{subjectManager.userPrincipalName || subjectManager.mail || 'No email'}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-gray-600">Manager Title</p>
+                          <p className="text-sm font-semibold">{subjectManager.jobTitle || 'Unknown Title'}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-gray-600">Manager Department</p>
+                          <p className="text-sm font-semibold">{subjectManager.department || 'Unknown Department'}</p>
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
-
-          <div>
-            <Label htmlFor="relationship">Your Relationship to Subject</Label>
-            <Select>
-              <SelectTrigger>
-                <SelectValue placeholder="Select relationship" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="direct-report">Direct Report</SelectItem>
-                <SelectItem value="supervisor">Supervisor</SelectItem>
-                <SelectItem value="peer">Peer/Colleague</SelectItem>
-                <SelectItem value="witness">Witness</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
         </CardContent>
       </Card>
 
       {/* Incident Details */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <FileText className="w-5 h-5 mr-2 text-green-500" />
-            Incident Details
-          </CardTitle>
-          <CardDescription>
-            Detailed information about what happened
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2 text-xl text-[#01426a]">
+                <FileText className="h-6 w-6" />
+                Incident Details
+              </CardTitle>
+              <CardDescription>
+                Provide comprehensive details about the incident
+              </CardDescription>
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="prm-case"
+                checked={formData.isPrmCase}
+                onChange={(e) => setFormData({ ...formData, isPrmCase: e.target.checked })}
+                className="rounded"
+              />
+              <label htmlFor="prm-case" className="text-sm font-medium cursor-pointer">
+                PRM
+              </label>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="incident-date" className="flex items-center">
+              <p className="text-sm font-medium mb-2 flex items-center">
                 <Calendar className="w-4 h-4 mr-1" />
-                Incident Date *
-              </Label>
+                Date of Incident *
+              </p>
               <Input
-                id="incident-date"
                 type="date"
                 value={formData.incidentDate}
                 onChange={(e) => setFormData({ ...formData, incidentDate: e.target.value })}
               />
             </div>
             <div>
-              <Label htmlFor="knowledge-date" className="flex items-center">
+              <p className="text-sm font-medium mb-2 flex items-center">
                 <Clock className="w-4 h-4 mr-1" />
                 Date of Knowledge *
-              </Label>
+              </p>
               <Input
-                id="knowledge-date"
                 type="date"
                 value={formData.dateOfKnowledge}
                 onChange={(e) => setFormData({ ...formData, dateOfKnowledge: e.target.value })}
@@ -373,183 +659,314 @@ export function NewCaseForm() {
           </div>
 
           <div>
-            <Label htmlFor="location">
+            <p className="text-sm font-medium mb-2">
               <MapPin className="w-4 h-4 mr-1 inline" />
               Location *
-            </Label>
+            </p>
             <Input
-              id="location"
               placeholder="Where did this incident occur?"
               className="w-full"
             />
           </div>
 
           <div>
-            <Label htmlFor="concern-type">Type of Violation/Concern *</Label>
-            <Select value={formData.concernType} onValueChange={(value: string) => setFormData({ ...formData, concernType: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select the type of concern" />
-              </SelectTrigger>
-              <SelectContent>
-                {CONCERN_TYPES.map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {type}
-                  </SelectItem>
+            <p className="text-sm font-medium mb-2">Type of Violation/Concern *</p>
+            <select 
+              value={formData.concernType} 
+              onChange={(e) => setFormData({ ...formData, concernType: e.target.value, contextTags: [] })}
+              className="w-full p-2 border rounded-md"
+            >
+              <option value="">Select the type of concern</option>
+              {CONCERN_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Context Tags Section - Conditional on category selection */}
+          {formData.concernType && CONCERN_CATEGORIES[formData.concernType as keyof typeof CONCERN_CATEGORIES] && (
+            <div>
+              <p className="text-sm font-medium mb-2">Context Tags for {formData.concernType}</p>
+              <p className="text-sm text-gray-500 mb-2">Select relevant tags that apply to this incident</p>
+              <div className="space-y-2 max-h-40 overflow-y-auto border rounded p-3">
+                {CONCERN_CATEGORIES[formData.concernType as keyof typeof CONCERN_CATEGORIES].map((tag) => (
+                  <div key={tag} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id={`tag-${tag}`}
+                      checked={formData.contextTags.includes(tag)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setFormData({
+                            ...formData,
+                            contextTags: [...formData.contextTags, tag]
+                          });
+                        } else {
+                          setFormData({
+                            ...formData,
+                            contextTags: formData.contextTags.filter(t => t !== tag)
+                          });
+                        }
+                      }}
+                      className="rounded"
+                    />
+                    <label htmlFor={`tag-${tag}`} className="text-sm cursor-pointer">
+                      {tag}
+                    </label>
+                  </div>
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label htmlFor="description">Detailed Description *</Label>
-            <Textarea
-              id="description"
-              placeholder="Please provide a detailed description of what happened. Include specific dates, times, locations, and any witnesses if applicable"
-              value={formData.description}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, description: e.target.value })}
-              rows={6}
-            />
-          </div>
-
-          <div>
-            <Label className="flex items-center mb-3">
-              <Users className="w-4 h-4 mr-1" />
-              Witnesses
-            </Label>
-            
-            {/* Employee Witness Search */}
-            <div className="space-y-3">
-              <div>
-                <Label className="text-sm">Add Employee Witness</Label>
-                <div className="relative">
-                  <Input
-                    placeholder="Search for employee witnesses"
-                    value={witnessSearchQuery}
-                    onChange={(e) => {
-                      setWitnessSearchQuery(e.target.value);
-                      setShowWitnessSearch(e.target.value.length > 0);
-                    }}
-                    className="pl-10"
-                  />
-                  <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-                  
-                  {showWitnessSearch && witnessSearchQuery && (
-                    <Card className="absolute z-10 w-full mt-1 max-h-48 overflow-auto">
-                      <CardContent className="p-2">
-                        {filteredWitnessUsers.length > 0 ? (
-                          <div className="space-y-1">
-                            {filteredWitnessUsers.map((user) => (
-                              <Button
-                                key={user.id}
-                                variant="ghost"
-                                className="w-full justify-start p-2 h-auto"
-                                onClick={() => handleWitnessSelect(user)}
-                                disabled={formData.witnesses.find(w => w.id === user.id) !== undefined}
-                              >
-                                <div className="text-left">
-                                  <div className="font-medium">{user.name}</div>
-                                  <div className="text-sm text-gray-500">
-                                    {user.employeeNumber} • {user.jobTitle}
-                                  </div>
-                                </div>
-                              </Button>
-                            ))}
-                          </div>
-                        ) : (
-                          <p className="text-gray-500 text-center py-2">No employees found</p>
-                        )}
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
               </div>
-
-              {/* External Witness */}
-              <div className="border-t pt-3">
-                <Label className="text-sm">Add External Witness (passengers, etc.)</Label>
-                <div className="flex space-x-2 mt-2">
-                  <Input
-                    placeholder="Witness name"
-                    value={externalWitnessName}
-                    onChange={(e) => setExternalWitnessName(e.target.value)}
-                  />
-                  <Input
-                    placeholder="Contact info/details (optional)"
-                    value={externalWitnessDetails}
-                    onChange={(e) => setExternalWitnessDetails(e.target.value)}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleAddExternalWitness}
-                    disabled={!externalWitnessName.trim()}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-
-              {/* Witnesses List */}
-              {formData.witnesses.length > 0 && (
-                <div className="space-y-2 mt-4">
-                  <Label className="text-sm font-medium">Added Witnesses:</Label>
-                  {formData.witnesses.map((witness) => (
-                    <div key={witness.id} className="flex items-center justify-between p-2 bg-gray-50 rounded border">
-                      <div>
-                        <span className="font-medium">{witness.name}</span>
-                        {witness.details && (
-                          <span className="text-sm text-gray-500 ml-2">({witness.details})</span>
-                        )}
-                        <Badge variant="outline" className="ml-2 text-xs">
-                          {witness.type === 'employee' ? 'Employee' : 'External'}
-                        </Badge>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeWitness(witness.id)}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
+              {formData.contextTags.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {formData.contextTags.map((tag) => (
+                    <Badge key={tag} variant="secondary" className="text-xs">
+                      {tag}
+                    </Badge>
                   ))}
                 </div>
               )}
             </div>
-          </div>
+          )}
 
           <div>
-            <Label className="flex items-center mb-3">
-              <AlertTriangle className="w-4 h-4 mr-1" />
-              Urgency Level *
-            </Label>
-            <RadioGroup 
-              value={formData.urgencyLevel} 
-              onValueChange={(value: 'low' | 'medium' | 'high') => setFormData({ ...formData, urgencyLevel: value })}
-              className="space-y-3"
+            <p className="text-sm font-medium mb-2">Detailed Description *</p>
+            <textarea
+              placeholder="Please provide a detailed description of what happened. Include specific dates, times, locations, and any witnesses if applicable"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              rows={6}
+              className="w-full p-2 border rounded-md"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Witnesses Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-xl text-[#01426a]">
+            <Users className="h-6 w-6" />
+            Witnesses
+          </CardTitle>
+          <CardDescription>
+            Add any witnesses to the incident. You can search for employees or add external witnesses.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Employee Witness Search */}
+          <div>
+            <p className="text-sm font-medium mb-2">Add Employee Witness</p>
+            <div className="relative">
+              <Input
+                placeholder="Search for employee witnesses"
+                value={witnessSearchQuery}
+                onChange={(e) => {
+                  setWitnessSearchQuery(e.target.value);
+                  setShowWitnessSearch(e.target.value.length > 0);
+                }}
+                className="pl-10"
+              />
+              <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+              
+              {showWitnessSearch && witnessSearchQuery && (
+                <Card className="absolute z-10 w-full mt-1 max-h-48 overflow-auto">
+                  <CardContent className="p-2">
+                    {isSearchingWitnesses ? (
+                      <div className="flex items-center gap-2 p-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>Searching witnesses...</span>
+                      </div>
+                    ) : witnessSearchResults.length > 0 ? (
+                      <div className="space-y-1">
+                        {witnessSearchResults.map((user) => {
+                          const displayName = getUserDisplayName(user);
+                          const email = getUserEmail(user);
+                          const jobTitle = getUserJobTitle(user);
+                          const userId = getUserId(user);
+                          
+                          return (
+                          <Button
+                            key={userId}
+                            variant="ghost"
+                            className="w-full justify-start p-2 h-auto"
+                            onClick={() => handleWitnessSelect(user)}
+                            disabled={formData.witnesses.find(w => w.id === userId) !== undefined}
+                          >
+                            <div className="text-left">
+                              <div className="font-medium">{displayName}</div>
+                              <div className="text-sm text-gray-500">
+                                {email} • {jobTitle}
+                              </div>
+                            </div>
+                          </Button>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-center py-2">No employees found</p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+
+          {/* External Witness */}
+          <div>
+            <p className="text-sm font-medium mb-2">Add External Witness</p>
+            <div className="flex space-x-2">
+              <Input
+                placeholder="External witness name"
+                value={externalWitnessName}
+                onChange={(e) => setExternalWitnessName(e.target.value)}
+                className="flex-1"
+              />
+              <Input
+                placeholder="Details (optional)"
+                value={externalWitnessDetails}
+                onChange={(e) => setExternalWitnessDetails(e.target.value)}
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAddExternalWitness}
+                disabled={!externalWitnessName.trim()}
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Witnesses List */}
+          {formData.witnesses.length > 0 && (
+            <div className="space-y-2 mt-4">
+              <p className="text-sm font-medium">Added Witnesses:</p>
+              {formData.witnesses.map((witness) => {
+                const witnessManager = witness.type === 'employee' && witness.id ? witnessManagers.get(witness.id) : null;
+                
+                return (
+                <div key={witness.id} className="border rounded-lg bg-gray-50">
+                  <div className="flex items-center justify-between p-2">
+                    <div>
+                      <span className="font-medium">{witness.displayName || witness.name}</span>
+                      {witness.mail && (
+                        <span className="text-sm text-gray-500 ml-2">({witness.mail})</span>
+                      )}
+                      {witness.details && (
+                        <span className="text-sm text-gray-500 ml-2">({witness.details})</span>
+                      )}
+                      <Badge variant="outline" className="ml-2 text-xs">
+                        {witness.type === 'employee' ? 'Employee' : 'External'}
+                      </Badge>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeWitness(witness.id)}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  
+                  {/* Manager Information for Employee Witnesses */}
+                  {witness.type === 'employee' && witnessManager && (
+                    <div className="px-2 pb-2">
+                      <div className="bg-white p-2 rounded border border-gray-200">
+                        <div className="flex items-center gap-1 mb-1">
+                          <User className="h-3 w-3 text-gray-500" />
+                          <p className="text-xs font-medium text-gray-500">Direct Manager</p>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-xs">
+                          <div>
+                            <span className="font-medium">{witnessManager.displayName}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">{witnessManager.jobTitle}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Urgency Level Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-xl text-[#01426a]">
+            <AlertTriangle className="h-6 w-6" />
+            Urgency Level
+          </CardTitle>
+          <CardDescription>
+            Select the appropriate urgency level based on the severity of the incident.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <div 
+              className={`flex items-center space-x-2 p-3 border rounded-lg cursor-pointer ${
+                formData.urgencyLevel === 'low' ? 'bg-green-50 border-green-200' : 'bg-gray-50'
+              }`}
+              onClick={() => setFormData({ ...formData, urgencyLevel: 'low' })}
             >
-              <div className="flex items-center space-x-2 p-3 border rounded-lg bg-green-50">
-                <RadioGroupItem value="low" id="low" />
-                <Label htmlFor="low" className="flex-1 cursor-pointer">
-                  <div className="font-medium text-green-800">Low - No immediate safety concerns</div>
-                  <div className="text-sm text-green-600">Standard processing timeline</div>
-                </Label>
+              <input
+                type="radio"
+                value="low"
+                checked={formData.urgencyLevel === 'low'}
+                onChange={() => setFormData({ ...formData, urgencyLevel: 'low' })}
+                className="rounded"
+              />
+              <div className="flex-1">
+                <p className="font-medium text-green-700">Low Priority</p>
+                <p className="text-sm text-gray-600">Standard processing time</p>
               </div>
-              <div className="flex items-center space-x-2 p-3 border rounded-lg bg-yellow-50">
-                <RadioGroupItem value="medium" id="medium" />
-                <Label htmlFor="medium" className="flex-1 cursor-pointer">
-                  <div className="font-medium text-yellow-800">Medium - Ongoing situation that needs attention</div>
-                  <div className="text-sm text-yellow-600">Expedited review required</div>
-                </Label>
+            </div>
+            
+            <div 
+              className={`flex items-center space-x-2 p-3 border rounded-lg cursor-pointer ${
+                formData.urgencyLevel === 'medium' ? 'bg-yellow-50 border-yellow-200' : 'bg-gray-50'
+              }`}
+              onClick={() => setFormData({ ...formData, urgencyLevel: 'medium' })}
+            >
+              <input
+                type="radio"
+                value="medium"
+                checked={formData.urgencyLevel === 'medium'}
+                onChange={() => setFormData({ ...formData, urgencyLevel: 'medium' })}
+                className="rounded"
+              />
+              <div className="flex-1">
+                <p className="font-medium text-yellow-700">Medium Priority</p>
+                <p className="text-sm text-gray-600">Expedited review needed</p>
               </div>
-              <div className="flex items-center space-x-2 p-3 border rounded-lg bg-red-50">
-                <RadioGroupItem value="high" id="high" />
-                <Label htmlFor="high" className="flex-1 cursor-pointer">
-                  <div className="font-medium text-red-800">High - Immediate safety or legal concern</div>
-                  <div className="text-sm text-red-600">Urgent response required</div>
-                </Label>
+            </div>
+            
+            <div 
+              className={`flex items-center space-x-2 p-3 border rounded-lg cursor-pointer ${
+                formData.urgencyLevel === 'high' ? 'bg-red-50 border-red-200' : 'bg-gray-50'
+              }`}
+              onClick={() => setFormData({ ...formData, urgencyLevel: 'high' })}
+            >
+              <input
+                type="radio"
+                value="high"
+                checked={formData.urgencyLevel === 'high'}
+                onChange={() => setFormData({ ...formData, urgencyLevel: 'high' })}
+                className="rounded"
+              />
+              <div className="flex-1">
+                <p className="font-medium text-red-700">High Priority</p>
+                <p className="text-sm text-gray-600">Immediate attention required</p>
               </div>
-            </RadioGroup>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -557,28 +974,21 @@ export function NewCaseForm() {
       {/* Supporting Documentation */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Upload className="w-5 h-5 mr-2 text-purple-500" />
+          <CardTitle className="flex items-center gap-2 text-xl text-[#01426a]">
+            <Upload className="h-6 w-6" />
             Supporting Documentation
           </CardTitle>
           <CardDescription>
-            Upload any relevant files, emails, photos, or other evidence
+            Upload any relevant documents, photos, or evidence
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
-            <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <div className="space-y-2">
-              <Button variant="outline">
-                Choose Files
-              </Button>
-              <p className="text-sm text-gray-500">
-                Drag and drop files here, or click to select files
-              </p>
-              <p className="text-xs text-gray-400">
-                Supported formats: PDF, DOC, DOCX, JPG, PNG, MP3, MP4 (Max 10MB each)
-              </p>
-            </div>
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            <Upload className="mx-auto h-12 w-12 text-gray-400" />
+            <p className="mt-2 text-sm text-gray-600">
+              Drag and drop files here, or <button className="text-blue-600 hover:text-blue-500">browse</button>
+            </p>
+            <p className="text-xs text-gray-500">Supports: PDF, DOC, JPG, PNG (Max 10MB)</p>
           </div>
         </CardContent>
       </Card>
@@ -588,47 +998,44 @@ export function NewCaseForm() {
         <CardContent className="p-4">
           <div className="space-y-3">
             <div className="flex items-start space-x-2">
-              <input type="checkbox" id="confidential" className="mt-1" />
-              <Label htmlFor="confidential" className="text-sm">
-                I understand that this information will be kept confidential to the extent possible and will only be shared with those who need to know for investigation purposes.
-              </Label>
-            </div>
-            <div className="flex items-start space-x-2">
-              <input type="checkbox" id="retaliation" className="mt-1" />
-              <Label htmlFor="retaliation" className="text-sm">
-                I understand that retaliation against anyone who reports concerns in good faith is prohibited and will not be tolerated.
-              </Label>
+              <Shield className="w-5 h-5 text-green-500 mt-0.5" />
+              <div>
+                <h4 className="font-medium text-gray-900">Confidentiality & Data Protection</h4>
+                <p className="text-sm text-gray-600">
+                  This report will be handled with strict confidentiality. Only authorized personnel 
+                  will have access to the information provided. All data is encrypted and stored securely.
+                </p>
+              </div>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Action Buttons */}
+      {/* Submit Buttons */}
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-2 text-sm text-gray-600">
           <Shield className="w-4 h-4 text-green-500" />
           <span>Secure & Confidential</span>
         </div>
+        
         <div className="flex space-x-3">
-          <Button variant="outline" onClick={() => handleSubmit(true)}>
-            <FileText className="w-4 h-4 mr-2" />
-            Save Draft
+          <Button 
+            variant="outline" 
+            onClick={() => handleSubmit(true)}
+            className="flex items-center space-x-2"
+          >
+            <FileText className="w-4 h-4" />
+            <span>Save as Draft</span>
           </Button>
-          <Button onClick={() => handleSubmit(false)}>
-            <CheckCircle className="w-4 h-4 mr-2" />
-            Submit Report
+          <Button 
+            onClick={() => handleSubmit(false)}
+            className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700"
+          >
+            <CheckCircle className="w-4 h-4" />
+            <span>Submit Case</span>
           </Button>
         </div>
       </div>
-
-      <Card className="bg-blue-50 border-blue-200">
-        <CardContent className="p-4 text-center">
-          <p className="text-sm text-blue-800">
-            By submitting this report, you acknowledge that the information provided is accurate to the best of your knowledge. 
-            You will receive a confirmation email with your case number within 24 hours.
-          </p>
-        </CardContent>
-      </Card>
     </div>
   );
 }
