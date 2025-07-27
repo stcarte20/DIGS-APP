@@ -1,0 +1,22 @@
+{
+  "appId": "6c97d515-6288-4ddb-9cc9-10a63982db43",
+  "appDisplayName": "DIGS Labor Relations System",
+  "description": null,
+  "environmentId": "189e6486-e123-e7a7-b745-314857769903",
+  "buildPath": "./dist",
+  "buildEntryPoint": "index.html",
+  "logoPath": "Default",
+  "localAppUrl": "http://localhost:3000/",
+  "connectionReferences": {
+    "259e70d0-c558-43df-b75b-680a7d8c4629": {
+      "id": "/providers/Microsoft.PowerApps/apis/shared_office365users",
+      "displayName": "Office 365 Users",
+      "dataSources": [
+        "office365users"
+      ],
+      "authenticationType": null,
+      "sharedConnectionId": null,
+      "dataSets": {}
+    }
+  }
+}

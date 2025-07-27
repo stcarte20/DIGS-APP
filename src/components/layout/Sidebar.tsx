@@ -114,6 +114,12 @@ const navigationStructure = [
         href: '/search',
         icon: Search,
         description: 'Global search'
+      },
+      {
+        name: 'Office 365 Test',
+        href: '/office365-test',
+        icon: Shield,
+        description: 'Office 365 integration test'
       }
     ]
   }

@@ -4,6 +4,12 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: "./",
+  server: {
+    host: "::",
+    port: 3000,
+    strictPort: true, // Force Vite to use port 3000 or fail
+  },
   plugins: [react()],
   resolve: {
     alias: {
