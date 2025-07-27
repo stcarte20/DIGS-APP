@@ -103,51 +103,54 @@ export class Office365Service {
       console.log('🔍 Office365Service: Getting manager for user:', user.displayName);
       console.log('🔍 Office365Service: User data for manager lookup:', user);
       
-      if (!user.userPrincipalName && !user.mail && !user.id) {
+      if (!user.userPrincipalName && !user.mail && !user.id && !user.employeeId) {
         console.warn('⚠️ Office365Service: No user identifier available for manager lookup');
         return null;
       }
 
-      // Use the user's userPrincipalName, mail, or id as the identifier
-      const userId = user.userPrincipalName || user.mail || user.id;
-      
-      if (!userId) {
-        console.warn('⚠️ Office365Service: No valid user identifier found');
-        return null;
+      // Try different user identifiers in order of preference
+      const possibleIds = [
+        { type: 'userPrincipalName', value: user.userPrincipalName },
+        { type: 'mail', value: user.mail },
+        { type: 'employeeId', value: user.employeeId },
+        { type: 'id', value: user.id }
+      ].filter(item => item.value);
+
+      console.log('📋 Office365Service: Available user identifiers:', possibleIds);
+
+      for (const identifier of possibleIds) {
+        try {
+          console.log(`📋 Office365Service: Trying Manager endpoint with ${identifier.type}:`, identifier.value);
+          
+          const result = await Office365UsersService.Manager(identifier.value);
+          console.log(`📋 Office365Service: Manager API result for ${identifier.type}:`, result);
+
+          if (result && (result.isSuccess === true || result.success === true) && result.data) {
+            const managerData = result.data as any;
+            console.log('✅ Office365Service: Successfully got manager data:', managerData);
+            
+            return {
+              id: managerData.Id || managerData.id,
+              displayName: managerData.DisplayName || managerData.displayName,
+              jobTitle: managerData.JobTitle || managerData.jobTitle,
+              userPrincipalName: managerData.UserPrincipalName || managerData.userPrincipalName,
+              mail: managerData.Mail || managerData.mail,
+              givenName: managerData.GivenName || managerData.givenName,
+              surname: managerData.Surname || managerData.surname,
+              department: managerData.Department || managerData.department,
+              officeLocation: managerData.OfficeLocation || managerData.officeLocation,
+              employeeId: managerData.EmployeeId || managerData.employeeId
+            };
+          } else {
+            console.log(`ℹ️ Office365Service: Manager API unsuccessful for ${identifier.type}:`, result);
+          }
+        } catch (identifierError) {
+          console.warn(`⚠️ Office365Service: Manager lookup failed for ${identifier.type}:`, identifierError);
+        }
       }
 
-      console.log('📋 Office365Service: Calling Manager endpoint with userId:', userId);
-      console.log('📋 Office365Service: User identifier type:', 
-        user.userPrincipalName ? 'userPrincipalName' : 
-        user.mail ? 'mail' : 
-        user.id ? 'id' : 'unknown'
-      );
-
-      const result = await Office365UsersService.Manager(userId);
-
-      console.log('📋 Office365Service: Manager API raw result:', result);
-
-      if (result && (result.isSuccess === true || result.success === true) && result.data) {
-        const managerData = result.data as any;
-        console.log('✅ Office365Service: Successfully got manager data:', managerData);
-        
-        return {
-          id: managerData.Id || managerData.id,
-          displayName: managerData.DisplayName || managerData.displayName,
-          jobTitle: managerData.JobTitle || managerData.jobTitle,
-          userPrincipalName: managerData.UserPrincipalName || managerData.userPrincipalName,
-          mail: managerData.Mail || managerData.mail,
-          givenName: managerData.GivenName || managerData.givenName,
-          surname: managerData.Surname || managerData.surname,
-          department: managerData.Department || managerData.department,
-          officeLocation: managerData.OfficeLocation || managerData.officeLocation,
-          employeeId: managerData.EmployeeId || managerData.employeeId
-        };
-      } else {
-        console.log('ℹ️ Office365Service: Manager API unsuccessful or no manager found:', result);
-        console.log('ℹ️ Office365Service: Result details - isSuccess:', result?.isSuccess, 'success:', result?.success, 'data:', result?.data);
-        return null;
-      }
+      console.log('ℹ️ Office365Service: No manager found with any identifier');
+      return null;
       
     } catch (error) {
       console.error('❌ Office365Service: Error getting manager:', error);
