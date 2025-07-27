@@ -101,6 +101,7 @@ export class Office365Service {
   public static async getUserManager(user: Office365User): Promise<Office365User | null> {
     try {
       console.log('🔍 Office365Service: Getting manager for user:', user.displayName);
+      console.log('🔍 Office365Service: User data for manager lookup:', user);
       
       if (!user.userPrincipalName && !user.mail && !user.id) {
         console.warn('⚠️ Office365Service: No user identifier available for manager lookup');
@@ -116,6 +117,12 @@ export class Office365Service {
       }
 
       console.log('📋 Office365Service: Calling Manager endpoint with userId:', userId);
+      console.log('📋 Office365Service: User identifier type:', 
+        user.userPrincipalName ? 'userPrincipalName' : 
+        user.mail ? 'mail' : 
+        user.id ? 'id' : 'unknown'
+      );
+
       const result = await Office365UsersService.Manager(userId);
 
       console.log('📋 Office365Service: Manager API raw result:', result);
@@ -138,6 +145,7 @@ export class Office365Service {
         };
       } else {
         console.log('ℹ️ Office365Service: Manager API unsuccessful or no manager found:', result);
+        console.log('ℹ️ Office365Service: Result details - isSuccess:', result?.isSuccess, 'success:', result?.success, 'data:', result?.data);
         return null;
       }
       

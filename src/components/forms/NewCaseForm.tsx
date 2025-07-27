@@ -305,27 +305,33 @@ export function NewCaseForm() {
   const loadManagerForUser = async (user: Office365User, userType: 'subject' | 'witness') => {
     try {
       setIsLoadingManagers(true);
-      console.log('🔍 Loading manager for user:', user.displayName, 'type:', userType);
+      console.log('🔍 [NewCaseForm] Loading manager for user:', user.displayName, 'type:', userType);
+      console.log('🔍 [NewCaseForm] User data being sent to getUserManager:', user);
       
       const manager = await Office365Service.getUserManager(user);
       
+      console.log('🔍 [NewCaseForm] Manager lookup result:', manager);
+      
       if (manager) {
-        console.log('✅ Found manager:', manager.displayName);
+        console.log('✅ [NewCaseForm] Found manager:', manager.displayName);
         if (userType === 'subject') {
+          console.log('✅ [NewCaseForm] Setting subject manager:', manager);
           setSubjectManager(manager);
         } else if (userType === 'witness' && user.id) {
+          console.log('✅ [NewCaseForm] Setting witness manager for user ID:', user.id);
           setWitnessManagers(prev => new Map(prev.set(user.id!, manager)));
         }
       } else {
-        console.log('ℹ️ No manager found for user:', user.displayName);
+        console.log('ℹ️ [NewCaseForm] No manager found for user:', user.displayName);
         if (userType === 'subject') {
           setSubjectManager(null);
         }
       }
     } catch (error) {
-      console.error('❌ Error loading manager:', error);
+      console.error('❌ [NewCaseForm] Error loading manager:', error);
     } finally {
       setIsLoadingManagers(false);
+      console.log('🔍 [NewCaseForm] Manager loading completed. isLoadingManagers set to false');
     }
   };
 
@@ -565,6 +571,14 @@ export function NewCaseForm() {
                 </div>
                 
                 {/* Manager Information Section */}
+                {/* DEBUG: Show manager state */}
+                <div className="mt-2 p-2 bg-yellow-100 border border-yellow-300 rounded text-xs">
+                  <p><strong>DEBUG:</strong></p>
+                  <p>subjectManager: {subjectManager ? `${subjectManager.displayName} (${subjectManager.jobTitle})` : 'null'}</p>
+                  <p>isLoadingManagers: {isLoadingManagers ? 'true' : 'false'}</p>
+                  <p>Condition (subjectManager || isLoadingManagers): {(subjectManager || isLoadingManagers) ? 'true' : 'false'}</p>
+                </div>
+                
                 {(subjectManager || isLoadingManagers) && (
                   <div className="mt-4 pt-4 border-t border-green-300">
                     <div className="flex items-center gap-2 mb-2">
