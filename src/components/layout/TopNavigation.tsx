@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Bell, User, LogOut } from 'lucide-react';
+import { Bell, User, LogOut, Search } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
+import { Input } from '../ui/input';
 import { Office365Service, type Office365User as SimpleUser } from '../../services/SimpleOffice365Service';
 
 export function TopNavigation() {
   const [user, setUser] = useState<SimpleUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [globalSearch, setGlobalSearch] = useState('');
 
   useEffect(() => {
     const loadUserProfile = async () => {
@@ -36,11 +38,24 @@ export function TopNavigation() {
 
   return (
     <header className="flex items-center justify-between h-16 px-6 border-b bg-card">
-      {/* Page Title */}
+      {/* Left Side - Title */}
       <div className="flex items-center">
         <h2 className="text-xl font-semibold text-foreground">
           Digital Investigations & Grievance System
         </h2>
+      </div>
+      
+      {/* Center - Global Search */}
+      <div className="flex-1 max-w-md mx-8">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Global search: cases, employees, grievances..."
+            value={globalSearch}
+            onChange={(e) => setGlobalSearch(e.target.value)}
+            className="pl-10 bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-500 focus:ring-blue-500"
+          />
+        </div>
       </div>
 
       {/* Right Side Actions */}

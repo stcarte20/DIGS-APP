@@ -65,45 +65,42 @@ export function CaseDetail() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 px-4 py-3">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Button variant="outline" size="sm" onClick={() => window.history.back()}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Cases
+      {/* Header - Compact */}
+      <div className="flex items-center justify-between p-3 bg-gray-50 border border-gray-100 rounded-lg">
+        <div className="flex items-center space-x-3">
+          <Button variant="outline" size="sm" onClick={() => window.history.back()} className="h-8 px-3">
+            <ArrowLeft className="h-3 w-3 mr-1" />
+            Back
           </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">{case_.primaryCaseId}</h1>
-            <p className="text-muted-foreground">{case_.secondaryCaseId}</p>
-          </div>
         </div>
         <div className="flex space-x-2">
-          <Button variant="outline">
-            <Edit className="h-4 w-4 mr-2" />
+          <Button variant="outline" size="sm" className="h-8 px-3 text-xs">
+            <Edit className="h-3 w-3 mr-1" />
             Edit Case
           </Button>
-          <Button>
-            <FileText className="h-4 w-4 mr-2" />
-            Generate Report
+          <Button size="sm" className="h-8 px-3 text-xs">
+            <FileText className="h-3 w-3 mr-1" />
+            Report
           </Button>
         </div>
       </div>
 
-      {/* Main Content Layout - Tabs on left, Timeline on right */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      {/* Main Content Layout - Optimized for standard monitors */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Main Content Tabs - Takes 3/4 of the space */}
         <div className="lg:col-span-3">
-          {/* Enhanced Header Section with Actions */}
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 shadow-sm mb-6">
-                <div className="flex items-start justify-between mb-6">
+          {/* Enhanced Header Section - Compact */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 mb-4">
+                <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <h1 className="text-2xl font-bold text-gray-900">
                         {`${case_.employeeLastName}, ${case_.employeeFirstName} ${case_.employeeId}`}
                       </h1>
-                      <Badge className={getStatusColor(case_.status)}>
-                        {case_.status}
+                      <Badge className="bg-blue-100 text-blue-800 px-3 py-1 text-sm font-medium">
+                        {case_.concernType || case_.violationType}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-gray-600">
@@ -135,25 +132,25 @@ export function CaseDetail() {
                   </div>
                 </div>
                 
-                {/* Status Indicators */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4">
-                  <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 border border-white/50">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-medium text-gray-600">Status</span>
-                      <CheckCircle className="h-3 w-3 text-gray-400" />
+                {/* Status Indicators - Improved styling */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-4">
+                  <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4 border border-white/60 shadow-sm">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Status</span>
+                      <CheckCircle className="h-4 w-4 text-gray-400" />
                     </div>
-                    <Badge className={getStatusColor(case_.status)}>
+                    <Badge className={`${getStatusColor(case_.status)} text-sm px-3 py-1`}>
                       {case_.status}
                     </Badge>
                   </div>
 
-                  <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 border border-white/50">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-medium text-gray-600">SLA Status</span>
-                      <Clock className="h-3 w-3 text-gray-400" />
+                  <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4 border border-white/60 shadow-sm">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">SLA Status</span>
+                      <Clock className="h-4 w-4 text-gray-400" />
                     </div>
-                    <div className="space-y-1">
-                      <div className="text-sm font-semibold">
+                    <div className="space-y-2">
+                      <div className="text-sm font-bold text-gray-900">
                         {(() => {
                           const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                           const today = new Date();
@@ -174,7 +171,7 @@ export function CaseDetail() {
                           return `${remaining} days left`;
                         })()}
                       </div>
-                      <Badge className={`text-xs ${(() => {
+                      <Badge className={`text-xs px-2 py-1 ${(() => {
                         const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                         const today = new Date();
                         let businessDays = 0;
@@ -216,26 +213,26 @@ export function CaseDetail() {
                     </div>
                   </div>
 
-                  <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 border border-white/50">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-medium text-gray-600">DOK</span>
-                      <Calendar className="h-3 w-3 text-gray-400" />
+                  <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4 border border-white/60 shadow-sm">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">DOK</span>
+                      <Calendar className="h-4 w-4 text-gray-400" />
                     </div>
-                    <div className="text-xs font-semibold">
+                    <div className="text-sm font-bold text-gray-900">
                       {new Date(case_.dok).toLocaleDateString()}
                     </div>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-600 mt-1">
                       {Math.floor((Date.now() - new Date(case_.dok).getTime()) / (1000 * 60 * 60 * 24))} days ago
                     </p>
                   </div>
 
-                  <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 border border-white/50">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-xs font-medium text-gray-600">Investigator</span>
-                      <User className="h-3 w-3 text-gray-400" />
+                  <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4 border border-white/60 shadow-sm">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Investigator</span>
+                      <User className="h-4 w-4 text-gray-400" />
                     </div>
-                    <div className="text-xs font-semibold">{case_.investigatorId}</div>
-                    <p className="text-xs text-gray-500">{case_.baseLocation}</p>
+                    <div className="text-sm font-bold text-gray-900">{case_.investigatorId}</div>
+                    <p className="text-xs text-gray-600 mt-1">{case_.baseLocation}</p>
                   </div>
                 </div>
                 
@@ -341,46 +338,46 @@ export function CaseDetail() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    {/* Description */}
+                    {/* Description - Larger text area */}
                     {case_.description && (
-                      <div>
-                        <label className="text-sm font-medium text-gray-700 block mb-2">Incident Description</label>
-                        <div className="bg-gray-50 p-4 rounded-lg border-l-4 border-l-gray-400">
-                          <p className="text-sm leading-relaxed text-gray-800">{case_.description}</p>
+                      <div className="border rounded-lg p-4">
+                        <label className="text-sm font-medium text-gray-700 block mb-2 flex items-center gap-2">
+                          <FileText className="h-4 w-4" />
+                          Incident Description
+                        </label>
+                        <div className="bg-gray-50 p-4 rounded-lg border min-h-[200px]">
+                          <p className="text-sm leading-relaxed text-gray-800 whitespace-pre-wrap">{case_.description}</p>
                         </div>
                       </div>
                     )}
 
-                    {/* Case Details Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-3">
-                        <div>
-                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Concern Type</label>
-                          <p className="text-sm font-semibold mt-1">{case_.concernType || case_.violationType}</p>
-                        </div>
-                        {case_.location && (
-                          <div>
-                            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Incident Location</label>
-                            <p className="text-sm font-semibold mt-1">{case_.location}</p>
-                          </div>
-                        )}
+                    {/* Case Details Grid - Secondary information */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <div className="bg-gray-50 p-2 rounded">
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Concern Type</label>
+                        <p className="text-xs font-medium mt-1 text-gray-800">{case_.concernType || case_.violationType}</p>
                       </div>
                       
-                      <div className="space-y-3">
-                        <div>
-                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Modified</label>
-                          <p className="text-sm font-semibold mt-1">
-                            {case_.modifiedOn ? new Date(case_.modifiedOn).toLocaleDateString() : 'Unknown date'}
-                          </p>
+                      {case_.location && (
+                        <div className="bg-gray-50 p-2 rounded">
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Location</label>
+                          <p className="text-xs font-medium mt-1 text-gray-800">{case_.location}</p>
                         </div>
-                        {case_.submitterInfo && (
-                          <div>
-                            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Submitted By</label>
-                            <p className="text-sm font-semibold mt-1">{case_.submitterInfo.name}</p>
-                            <p className="text-xs text-gray-600">#{case_.submitterInfo.employeeNumber}</p>
-                          </div>
-                        )}
+                      )}
+                      
+                      <div className="bg-gray-50 p-2 rounded">
+                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Modified</label>
+                        <p className="text-xs font-medium mt-1 text-gray-800">
+                          {case_.modifiedOn ? new Date(case_.modifiedOn).toLocaleDateString() : 'Unknown'}
+                        </p>
                       </div>
+                      
+                      {case_.submitterInfo && (
+                        <div className="bg-gray-50 p-2 rounded">
+                          <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Submitted By</label>
+                          <p className="text-xs font-medium mt-1 text-gray-800">{case_.submitterInfo.name}</p>
+                        </div>
+                      )}
                     </div>
 
                     {/* Context Tags */}

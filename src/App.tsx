@@ -6,6 +6,7 @@ import { Overview } from './pages/Overview';
 import { MyWorkspace } from './pages/MyWorkspace';
 import { Cases } from './pages/Cases';
 import { CaseDetail } from './pages/CaseDetail';
+import { EditCase } from './pages/EditCase';
 import { Grievances } from './pages/Grievances';
 import { Office365Test } from './pages/Office365Test';
 import { 
@@ -47,6 +48,7 @@ function App() {
                 <Route path="/overview" element={<Overview />} />
                 <Route path="/cases" element={<Cases />} />
                 <Route path="/cases/:id" element={<CaseDetail />} />
+                <Route path="/cases/:id/edit" element={<EditCase />} />
                 <Route path="/grievances" element={<Grievances />} />
                 <Route path="/grievances/:id" element={<GrievanceDetail />} />
                 <Route path="/arbitration" element={<Arbitration />} />
