@@ -401,7 +401,7 @@ export function NewCaseForm() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6 px-4 sm:px-6 lg:px-8">
       {/* Header */}
       <Card className="bg-blue-50 border-blue-200">
         <CardHeader>
@@ -418,7 +418,7 @@ export function NewCaseForm() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-white rounded-lg border">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 p-4 lg:p-6 bg-white rounded-lg border">
             <div>
               <p className="text-sm font-medium text-gray-600">Submitter Name</p>
               {isLoadingCurrentUser ? (
@@ -514,7 +514,7 @@ export function NewCaseForm() {
                             <div className="text-left">
                               <div className="font-medium">{displayName}</div>
                               <div className="text-sm text-gray-500">
-                                {email} • {jobTitle}
+                                {jobTitle} • {email}
                               </div>
                             </div>
                           </Button>
@@ -585,7 +585,7 @@ export function NewCaseForm() {
                         <span>Loading manager information...</span>
                       </div>
                     ) : subjectManager ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-white p-3 rounded border border-green-200">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4 bg-white p-3 lg:p-4 rounded border border-green-200">
                         <div>
                           <p className="text-xs font-medium text-gray-600">Manager Name</p>
                           <p className="text-sm font-semibold">{subjectManager.displayName || 'Unknown Manager'}</p>
@@ -639,8 +639,8 @@ export function NewCaseForm() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent className="space-y-4 lg:space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
             <div>
               <p className="text-sm font-medium mb-2 flex items-center">
                 <Calendar className="w-4 h-4 mr-1" />

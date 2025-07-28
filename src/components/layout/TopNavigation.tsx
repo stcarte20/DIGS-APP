@@ -37,16 +37,17 @@ export function TopNavigation() {
   }, []);
 
   return (
-    <header className="flex items-center justify-between h-16 px-6 border-b bg-card">
+    <header className="flex items-center justify-between h-16 lg:h-20 px-4 sm:px-6 lg:px-8 border-b bg-card">
       {/* Left Side - Title */}
       <div className="flex items-center">
-        <h2 className="text-xl font-semibold text-foreground">
-          Digital Investigations & Grievance System
+        <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-foreground">
+          <span className="hidden xl:inline">Digital Investigations & Grievance System</span>
+          <span className="xl:hidden">DIGS</span>
         </h2>
       </div>
       
       {/* Center - Global Search */}
-      <div className="flex-1 max-w-md mx-8">
+      <div className="flex-1 max-w-sm lg:max-w-md xl:max-w-lg mx-4 sm:mx-8">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
@@ -59,23 +60,23 @@ export function TopNavigation() {
       </div>
 
       {/* Right Side Actions */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-2 lg:space-x-4">
         {/* SLA Status Indicator */}
-        <div className="flex items-center space-x-2">
-          <Badge variant="outline" className="text-green-600 border-green-200">
-            SLA: 94.2% Compliance
+        <div className="hidden lg:flex items-center space-x-2">
+          <Badge variant="outline" className="text-green-600 border-green-200 text-xs lg:text-sm">
+            <span className="hidden xl:inline">SLA: </span>94.2%
           </Badge>
-          <Badge variant="destructive">
+          <Badge variant="destructive" className="text-xs lg:text-sm">
             3 Overdue
           </Badge>
         </div>
 
         {/* Notifications */}
         <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
+          <Bell className="h-5 w-5 lg:h-6 lg:w-6" />
           <Badge 
             variant="destructive" 
-            className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
+            className="absolute -top-1 -right-1 h-5 w-5 lg:h-6 lg:w-6 rounded-full p-0 flex items-center justify-center text-xs"
           >
             5
           </Badge>
@@ -84,9 +85,9 @@ export function TopNavigation() {
         {/* User Menu */}
         <div className="flex items-center space-x-2">
           <Button variant="ghost" size="icon">
-            <User className="h-5 w-5" />
+            <User className="h-5 w-5 lg:h-6 lg:w-6" />
           </Button>
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             {isLoading ? (
               <div className="animate-pulse">
                 <div className="h-4 bg-gray-200 rounded w-24 mb-1"></div>
@@ -94,20 +95,22 @@ export function TopNavigation() {
               </div>
             ) : user ? (
               <>
-                <p className="text-sm font-medium">
+                <p className="text-sm lg:text-base font-medium">
                   {user.displayName}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs lg:text-sm text-muted-foreground">
                   {user.jobTitle || 'No job title'}
                 </p>
               </>
             ) : (
               <>
-                <p className="text-sm font-medium text-red-600">
-                  Office365 Not Connected
+                <p className="text-sm lg:text-base font-medium text-red-600">
+                  <span className="hidden xl:inline">Office365 Not Connected</span>
+                  <span className="xl:hidden">Not Connected</span>
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  Check Power Platform connection
+                <p className="text-xs lg:text-sm text-muted-foreground">
+                  <span className="hidden xl:inline">Check Power Platform connection</span>
+                  <span className="xl:hidden">Check connection</span>
                 </p>
               </>
             )}
@@ -116,7 +119,7 @@ export function TopNavigation() {
 
         {/* Logout */}
         <Button variant="ghost" size="icon">
-          <LogOut className="h-5 w-5" />
+          <LogOut className="h-5 w-5 lg:h-6 lg:w-6" />
         </Button>
       </div>
     </header>

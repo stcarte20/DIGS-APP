@@ -104,19 +104,19 @@ export function MyWorkspace() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">My Workspace</h1>
-          <p className="text-gray-600">Welcome back, {CURRENT_USER.name}</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold">My Workspace</h1>
+          <p className="text-sm lg:text-base text-gray-600">Welcome back, {CURRENT_USER.name}</p>
         </div>
-        <div className="flex space-x-2">
-          <Button variant="outline" onClick={() => navigate('/calendar')}>
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+          <Button variant="outline" onClick={() => navigate('/calendar')} className="text-sm lg:text-base">
             <Calendar className="w-4 h-4 mr-2" />
             My Calendar
           </Button>
-          <Button onClick={() => navigate('/intake')}>
+          <Button onClick={() => navigate('/intake')} className="text-sm lg:text-base">
             <Plus className="w-4 h-4 mr-2" />
             New Case
           </Button>
@@ -158,7 +158,7 @@ export function MyWorkspace() {
       )}
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -208,7 +208,7 @@ export function MyWorkspace() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
         {/* My Active Cases */}
         <Card>
           <CardHeader>
@@ -303,7 +303,7 @@ export function MyWorkspace() {
       </div>
 
       {/* Action Items */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
         {/* Items Requiring Action */}
         <Card>
           <CardHeader>

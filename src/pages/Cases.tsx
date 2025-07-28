@@ -57,25 +57,25 @@ export function Cases() {
   };
 
   return (
-    <div className="space-y-6 px-6 py-4">
+    <div className="space-y-6 lg:space-y-8">
       {/* Compact Page Header */}
-      <div className="bg-white border border-gray-200 rounded-lg p-4">
-        <div className="flex items-center justify-between">
+      <div className="bg-white border border-gray-200 rounded-lg p-4 lg:p-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-[#01426a] mb-1">Investigation Cases</h1>
-            <p className="text-gray-600 text-sm">Manage and track investigation progress across all cases</p>
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-[#01426a] mb-1">Investigation Cases</h1>
+            <p className="text-sm lg:text-base text-gray-600">Manage and track investigation progress across all cases</p>
           </div>
-          <div className="flex space-x-3">
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
             <Button 
               variant="outline" 
               onClick={() => refetch()}
-              className="border-gray-300 text-gray-700 hover:bg-gray-50"
+              className="border-gray-300 text-gray-700 hover:bg-gray-50 text-sm lg:text-base"
             >
               <Filter className="h-4 w-4 mr-2" />
               Refresh
             </Button>
             <Link to="/intake">
-              <Button className="bg-[#01426a] hover:bg-blue-800 text-white">
+              <Button className="bg-[#01426a] hover:bg-blue-800 text-white text-sm lg:text-base">
                 <Plus className="h-4 w-4 mr-2" />
                 New Case
               </Button>
@@ -85,7 +85,7 @@ export function Cases() {
       </div>
 
       {/* Compact Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         <Card className="border-0 overflow-hidden">
           <CardHeader className="bg-gradient-to-br from-blue-500 to-blue-600 text-white pb-2">
             <div className="flex items-center justify-between">

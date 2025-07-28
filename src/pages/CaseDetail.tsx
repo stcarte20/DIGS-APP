@@ -65,30 +65,30 @@ export function CaseDetail() {
   };
 
   return (
-    <div className="space-y-4 px-4 py-3">
+    <div className="space-y-4 lg:space-y-6">
       {/* Header */}
       {/* Header - Compact */}
-      <div className="flex items-center justify-between p-3 bg-gray-50 border border-gray-100 rounded-lg">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 lg:p-4 bg-gray-50 border border-gray-100 rounded-lg">
         <div className="flex items-center space-x-3">
-          <Button variant="outline" size="sm" onClick={() => window.history.back()} className="h-8 px-3">
-            <ArrowLeft className="h-3 w-3 mr-1" />
+          <Button variant="outline" size="sm" onClick={() => window.history.back()} className="h-8 lg:h-10 px-3 lg:px-4 text-xs lg:text-sm">
+            <ArrowLeft className="h-3 w-3 lg:h-4 lg:w-4 mr-1" />
             Back
           </Button>
         </div>
-        <div className="flex space-x-2">
-          <Button variant="outline" size="sm" className="h-8 px-3 text-xs">
-            <Edit className="h-3 w-3 mr-1" />
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+          <Button variant="outline" size="sm" className="h-8 lg:h-10 px-3 lg:px-4 text-xs lg:text-sm">
+            <Edit className="h-3 w-3 lg:h-4 lg:w-4 mr-1" />
             Edit Case
           </Button>
-          <Button size="sm" className="h-8 px-3 text-xs">
-            <FileText className="h-3 w-3 mr-1" />
+          <Button size="sm" className="h-8 lg:h-10 px-3 lg:px-4 text-xs lg:text-sm">
+            <FileText className="h-3 w-3 lg:h-4 lg:w-4 mr-1" />
             Report
           </Button>
         </div>
       </div>
 
       {/* Main Content Layout - Optimized for standard monitors */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 lg:gap-6">
         {/* Main Content Tabs - Takes 3/4 of the space */}
         <div className="lg:col-span-3">
           {/* Enhanced Header Section - Compact */}
@@ -133,7 +133,7 @@ export function CaseDetail() {
                 </div>
                 
                 {/* Status Indicators - Improved styling */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mt-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mt-4">
                   <div className="bg-white/90 backdrop-blur-sm rounded-lg p-4 border border-white/60 shadow-sm">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Status</span>

@@ -241,19 +241,19 @@ export function Sidebar() {
   };
 
   return (
-    <div className="flex flex-col w-64 bg-card border-r">
+    <div className="flex flex-col w-64 lg:w-72 xl:w-80 bg-card border-r">
       {/* Logo and Title */}
-      <div className="flex items-center h-16 px-6 border-b">
-        <Shield className="h-8 w-8 text-primary mr-3" />
+      <div className="flex items-center h-16 lg:h-20 px-4 lg:px-6 border-b">
+        <Shield className="h-8 w-8 lg:h-10 lg:w-10 text-primary mr-3" />
         <div>
-          <h1 className="text-xl font-bold text-foreground">DIGS</h1>
-          <p className="text-xs text-muted-foreground">Labor Relations</p>
+          <h1 className="text-xl lg:text-2xl font-bold text-foreground">DIGS</h1>
+          <p className="text-xs lg:text-sm text-muted-foreground">Labor Relations</p>
         </div>
       </div>
 
       {/* Main Navigation */}
-      <nav className="flex-1 py-4">
-        <div className="space-y-1">
+      <nav className="flex-1 py-4 lg:py-6">
+        <div className="space-y-1 px-3 lg:px-4">
           {navigationStructure.map((item) => (
             <NavigationGroup
               key={item.name}
@@ -266,7 +266,7 @@ export function Sidebar() {
       </nav>
 
       {/* Secondary Navigation */}
-      <div className="border-t p-4">
+      <div className="border-t p-4 lg:p-6">
         <div className="space-y-1">
           {secondaryItems.map((item) => {
             const Icon = item.icon;

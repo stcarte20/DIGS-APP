@@ -7,6 +7,26 @@ declare global {
   }
 }
 
+// Environment detection utility
+const detectEnvironment = () => {
+  const isPowerPlatformEnv = window.location.hostname.includes('apps.powerapps.com') || 
+                            window.location.hostname.includes('make.powerapps.com') ||
+                            typeof window.powerPlatformSDK !== 'undefined';
+  
+  console.log('🔍 [Office365Service] Environment Detection:', {
+    hostname: window.location.hostname,
+    isPowerPlatformEnv,
+    isDevelopment: process.env.NODE_ENV === 'development',
+    userAgent: navigator.userAgent,
+    powerPlatformSDK: typeof window.powerPlatformSDK
+  });
+  
+  return {
+    isPowerPlatformEnv,
+    isDevelopment: process.env.NODE_ENV === 'development'
+  };
+};
+
 export interface Office365User {
   id?: string;
   displayName?: string;
@@ -340,6 +360,7 @@ export class Office365Service {
    */
   public static async testMyProfile(): Promise<any> {
     try {
+      const environment = detectEnvironment();
       const user = await this.getCurrentUser();
       return {
         timestamp: new Date().toLocaleString(),
@@ -347,20 +368,21 @@ export class Office365Service {
         success: !!user,
         currentUser: user,
         environment: {
-          isDevelopment: process.env.NODE_ENV === 'development',
-          isPowerPlatformEnv: false,
+          isDevelopment: environment.isDevelopment,
+          isPowerPlatformEnv: environment.isPowerPlatformEnv,
           userAgent: navigator.userAgent
         }
       };
     } catch (error) {
+      const environment = detectEnvironment();
       return {
         timestamp: new Date().toLocaleString(),
         testType: 'myProfile' as const,
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
         environment: {
-          isDevelopment: process.env.NODE_ENV === 'development',
-          isPowerPlatformEnv: false,
+          isDevelopment: environment.isDevelopment,
+          isPowerPlatformEnv: environment.isPowerPlatformEnv,
           userAgent: navigator.userAgent
         }
       };
@@ -372,6 +394,7 @@ export class Office365Service {
    */
   public static async testSearch(searchTerm: string, limit: number = 10): Promise<any> {
     try {
+      const environment = detectEnvironment();
       const result = await this.searchUsers(searchTerm, limit);
       return {
         timestamp: new Date().toLocaleString(),
@@ -381,12 +404,13 @@ export class Office365Service {
         error: result.error,
         processedUsers: result.processedUsers,
         environment: {
-          isDevelopment: process.env.NODE_ENV === 'development',
-          isPowerPlatformEnv: false,
+          isDevelopment: environment.isDevelopment,
+          isPowerPlatformEnv: environment.isPowerPlatformEnv,
           userAgent: navigator.userAgent
         }
       };
     } catch (error) {
+      const environment = detectEnvironment();
       return {
         timestamp: new Date().toLocaleString(),
         testType: 'searchUser' as const,
@@ -395,8 +419,8 @@ export class Office365Service {
         error: error instanceof Error ? error.message : 'Unknown error',
         processedUsers: [],
         environment: {
-          isDevelopment: process.env.NODE_ENV === 'development',
-          isPowerPlatformEnv: false,
+          isDevelopment: environment.isDevelopment,
+          isPowerPlatformEnv: environment.isPowerPlatformEnv,
           userAgent: navigator.userAgent
         }
       };

@@ -76,19 +76,19 @@ export function Grievances() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:space-y-8">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Grievances</h1>
-          <p className="text-muted-foreground">Manage union grievances and appeals</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">Union Grievances</h1>
+          <p className="text-sm lg:text-base text-muted-foreground">Track and manage grievance proceedings</p>
         </div>
-        <div className="flex space-x-2">
-          <Button variant="outline" onClick={() => refetch()}>
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+          <Button variant="outline" onClick={() => refetch()} className="text-sm lg:text-base">
             <Filter className="h-4 w-4 mr-2" />
             Refresh
           </Button>
-          <Button>
+          <Button className="text-sm lg:text-base">
             <Plus className="h-4 w-4 mr-2" />
             New Grievance
           </Button>
@@ -96,7 +96,7 @@ export function Grievances() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Grievances</CardTitle>

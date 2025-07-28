@@ -66,21 +66,21 @@ export function Overview() {
   const dashboardMetrics = metrics || defaultMetrics;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 lg:space-y-8">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground">Labor Relations Investigation & Grievance Management Overview</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-sm lg:text-base text-muted-foreground">Labor Relations Investigation & Grievance Management Overview</p>
         </div>
-        <div className="flex space-x-2">
-          <Button variant="outline">Export Report</Button>
-          <Button>New Case</Button>
+        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 lg:space-x-3">
+          <Button variant="outline" className="text-sm lg:text-base">Export Report</Button>
+          <Button className="text-sm lg:text-base">New Case</Button>
         </div>
       </div>
 
       {/* Key Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Cases</CardTitle>
@@ -135,7 +135,7 @@ export function Overview() {
       </div>
 
       {/* Alert Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
         <Card className="border-red-200 bg-red-50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-red-800">Overdue Cases</CardTitle>
@@ -171,7 +171,7 @@ export function Overview() {
       </div>
 
       {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 lg:gap-8">
         {/* Case Volume Trend */}
         <Card>
           <CardHeader>
@@ -179,7 +179,7 @@ export function Overview() {
             <CardDescription>Monthly cases and grievances over time</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <LineChart data={caseVolumeData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="month" />
@@ -200,7 +200,7 @@ export function Overview() {
             <CardDescription>Current period performance</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <PieChart>
                 <Pie
                   data={slaComplianceData}
@@ -229,7 +229,7 @@ export function Overview() {
             <CardDescription>Distribution of current active cases</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={250}>
               <BarChart data={violationTypeData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
@@ -286,22 +286,22 @@ export function Overview() {
           <CardDescription>Cases categorized by risk level</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-4 gap-4">
-            <div className="text-center p-4 border rounded-lg bg-green-50">
-              <div className="text-2xl font-bold text-green-800">{dashboardMetrics.riskDistribution.low}</div>
-              <div className="text-sm text-green-600">Low Risk</div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+            <div className="text-center p-3 lg:p-4 border rounded-lg bg-green-50">
+              <div className="text-xl lg:text-2xl font-bold text-green-800">{dashboardMetrics.riskDistribution.low}</div>
+              <div className="text-xs lg:text-sm text-green-600">Low Risk</div>
             </div>
-            <div className="text-center p-4 border rounded-lg bg-yellow-50">
-              <div className="text-2xl font-bold text-yellow-800">{dashboardMetrics.riskDistribution.medium}</div>
-              <div className="text-sm text-yellow-600">Medium Risk</div>
+            <div className="text-center p-3 lg:p-4 border rounded-lg bg-yellow-50">
+              <div className="text-xl lg:text-2xl font-bold text-yellow-800">{dashboardMetrics.riskDistribution.medium}</div>
+              <div className="text-xs lg:text-sm text-yellow-600">Medium Risk</div>
             </div>
-            <div className="text-center p-4 border rounded-lg bg-orange-50">
-              <div className="text-2xl font-bold text-orange-800">{dashboardMetrics.riskDistribution.high}</div>
-              <div className="text-sm text-orange-600">High Risk</div>
+            <div className="text-center p-3 lg:p-4 border rounded-lg bg-orange-50">
+              <div className="text-xl lg:text-2xl font-bold text-orange-800">{dashboardMetrics.riskDistribution.high}</div>
+              <div className="text-xs lg:text-sm text-orange-600">High Risk</div>
             </div>
-            <div className="text-center p-4 border rounded-lg bg-red-50">
-              <div className="text-2xl font-bold text-red-800">{dashboardMetrics.riskDistribution.critical}</div>
-              <div className="text-sm text-red-600">Critical Risk</div>
+            <div className="text-center p-3 lg:p-4 border rounded-lg bg-red-50">
+              <div className="text-xl lg:text-2xl font-bold text-red-800">{dashboardMetrics.riskDistribution.critical}</div>
+              <div className="text-xs lg:text-sm text-red-600">Critical Risk</div>
             </div>
           </div>
         </CardContent>
