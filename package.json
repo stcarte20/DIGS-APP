@@ -4,7 +4,7 @@
   "description": "Digital Investigation and Grievance System - React TypeScript Application",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"npm run dev:vite\" \"npm run dev:powerapi\"",
+    "dev": "pac code run && vite",
     "dev:vite": "vite --port 3000",
     "dev:powerapi": "pac code run --port 8088 --appUrl http://localhost:3000",
     "build": "tsc && vite build",
