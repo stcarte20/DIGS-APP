@@ -8,24 +8,21 @@ declare global {
 }
 
 // Environment detection utility
+/* DIAGNOSTIC HELPER - COMMENTED OUT
 const detectEnvironment = () => {
-  const isPowerPlatformEnv = window.location.hostname.includes('apps.powerapps.com') || 
-                            window.location.hostname.includes('make.powerapps.com') ||
-                            typeof window.powerPlatformSDK !== 'undefined';
-  
-  console.log('🔍 [Office365Service] Environment Detection:', {
-    hostname: window.location.hostname,
-    isPowerPlatformEnv,
-    isDevelopment: process.env.NODE_ENV === 'development',
-    userAgent: navigator.userAgent,
-    powerPlatformSDK: typeof window.powerPlatformSDK
-  });
+  const hostname = window.location.hostname;
+  const userAgent = navigator.userAgent;
+  const isDevelopment = hostname === 'localhost' || hostname === '127.0.0.1';
+  const isPowerPlatformEnv = userAgent.includes('PowerApps') || userAgent.includes('PowerBI') || hostname.includes('powerapps');
   
   return {
+    isDevelopment,
     isPowerPlatformEnv,
-    isDevelopment: process.env.NODE_ENV === 'development'
+    hostname,
+    userAgent
   };
 };
+*/
 
 export interface Office365User {
   id?: string;
@@ -355,9 +352,12 @@ export class Office365Service {
     }
   }
 
+  /* DIAGNOSTIC METHODS - COMMENTED OUT
+  
   /**
    * Test method for compatibility with existing test page - getCurrentUser
    */
+  /*
   public static async testMyProfile(): Promise<any> {
     try {
       const environment = detectEnvironment();
@@ -392,6 +392,7 @@ export class Office365Service {
   /**
    * Test method for compatibility with existing test page - searchUsers
    */
+  /*
   public static async testSearch(searchTerm: string, limit: number = 10): Promise<any> {
     try {
       const environment = detectEnvironment();
@@ -426,6 +427,7 @@ export class Office365Service {
       };
     }
   }
+  */
 }
 
 // Keep the legacy interface for backward compatibility

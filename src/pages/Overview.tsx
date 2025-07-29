@@ -6,7 +6,6 @@ import { Button } from '../components/ui/button';
 import { AlertTriangle, Clock, CheckCircle, FileText, Scale, TrendingDown } from 'lucide-react';
 import { DashboardMetrics, Case } from '../types';
 import { getCases, getDashboardMetrics } from '../data/mockCaseData';
-import { PowerAppsDiagnostics } from '../components/PowerAppsDiagnostics';
 
 export function Overview() {
   // Fetch dashboard metrics
@@ -68,9 +67,6 @@ export function Overview() {
 
   return (
     <div className="space-y-6 lg:space-y-8">
-      {/* Power Platform Diagnostics */}
-      <PowerAppsDiagnostics />
-      
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>

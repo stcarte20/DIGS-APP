@@ -12,7 +12,7 @@ import {
   Globe,
   Zap
 } from 'lucide-react';
-import { Office365Service } from '../services/SimpleOffice365Service';
+// import { Office365Service } from '../services/SimpleOffice365Service';
 
 interface DiagnosticResult {
   category: string;
@@ -82,7 +82,8 @@ export function PowerAppsDiagnostic() {
 
     // Office365 Connection Test
     try {
-      const profileTest = await Office365Service.testMyProfile();
+      // const profileTest = await Office365Service.testMyProfile();
+      const profileTest = { success: false, error: 'Test method disabled' };
       results.push({
         category: 'Office365',
         test: 'Current User Profile',
@@ -102,7 +103,8 @@ export function PowerAppsDiagnostic() {
 
     // Office365 Search Test
     try {
-      const searchTest = await Office365Service.testSearch('test', 1);
+      // const searchTest = await Office365Service.testSearch('test', 1);
+      const searchTest = { success: false, error: 'Test method disabled' };
       results.push({
         category: 'Office365',
         test: 'User Search',

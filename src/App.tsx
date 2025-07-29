@@ -9,7 +9,6 @@ import { CaseDetail } from './pages/CaseDetail';
 import { EditCase } from './pages/EditCase';
 import { Grievances } from './pages/Grievances';
 import { Office365Test } from './pages/Office365Test';
-import { PowerAppsDiagnostic } from './pages/PowerAppsDiagnostic';
 import { 
   GrievanceDetail, 
   Arbitration,
@@ -70,7 +69,6 @@ function App() {
                 <Route path="/notifications" element={<Notifications />} />
                 <Route path="/help" element={<Help />} />
                 <Route path="/office365test" element={<Office365Test />} />
-                <Route path="/powerapps-diagnostic" element={<PowerAppsDiagnostic />} />
               </Routes>
               </div>
             </main>
