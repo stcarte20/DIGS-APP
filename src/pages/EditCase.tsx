@@ -21,7 +21,8 @@ import {
   Edit,
   Building
 } from 'lucide-react';
-import { getCaseById, updateCase } from '../lib/cases';
+// Switched to hybrid unified services
+import { getCaseByIdUnified, updateCaseUnified } from '../services/casesHybrid';
 import { Office365Service, Office365User } from '../services/SimpleOffice365Service';
 import { Case } from '../types/index';
 
@@ -68,7 +69,7 @@ export function EditCase() {
   // Fetch case data
   const { data: case_, isLoading: caseLoading, error: caseError } = useQuery({
     queryKey: ['case', id],
-    queryFn: () => getCaseById(id!),
+    queryFn: () => getCaseByIdUnified(id!),
     enabled: !!id,
   });
 
@@ -86,7 +87,7 @@ export function EditCase() {
 
   // Update case mutation
   const updateCaseMutation = useMutation({
-    mutationFn: (updatedCase: Partial<Case>) => updateCase(id!, updatedCase),
+    mutationFn: (updatedCase: Partial<Case>) => updateCaseUnified(id!, updatedCase),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['case', id] });
       queryClient.invalidateQueries({ queryKey: ['cases'] });
@@ -1047,7 +1048,7 @@ export function EditCase() {
                             const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                             const today = new Date();
                             let businessDays = 0;
-                            let currentDate = new Date(dokDate);
+                            const currentDate = new Date(dokDate);
                             
                             while (currentDate <= today) {
                               const dayOfWeek = currentDate.getDay();
@@ -1064,7 +1065,7 @@ export function EditCase() {
                           {(() => {
                             const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                             let businessDays = 0;
-                            let currentDate = new Date(dokDate);
+                            const currentDate = new Date(dokDate);
                             
                             while (businessDays < 12) {
                               currentDate.setDate(currentDate.getDate() + 1);

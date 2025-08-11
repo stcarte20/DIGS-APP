@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -20,8 +20,14 @@ import {
   Plus,
   Shield
 } from 'lucide-react';
+// ...existing code...
+// Simple in-memory evidence store fallback
+interface UploadedDocMeta { id: string; name: string; size: number; type: string; uploadedOn: Date; }
+import { useState, useRef } from 'react';
+const inMemoryEvidenceStore: Record<string, UploadedDocMeta[]> = {};
 import { Task, Note } from '../types';
-import { getCaseById, getTasksByCaseId, getNotesByCaseId } from '../data/mockCaseData';
+import { getTasksByCaseId, getNotesByCaseId } from '../data/mockCaseData';
+import { getCaseByIdUnified } from '../services/casesHybrid';
 
 export function CaseDetail() {
   const { id } = useParams<{ id: string }>();
@@ -29,7 +35,7 @@ export function CaseDetail() {
   // Fetch case details
   const { data: case_, isLoading: caseLoading } = useQuery({
     queryKey: ['case', id],
-    queryFn: () => getCaseById(id!),
+    queryFn: () => getCaseByIdUnified(id!),
     enabled: !!id,
   });
 
@@ -76,10 +82,12 @@ export function CaseDetail() {
           </Button>
         </div>
         <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-          <Button variant="outline" size="sm" className="h-8 lg:h-10 px-3 lg:px-4 text-xs lg:text-sm">
-            <Edit className="h-3 w-3 lg:h-4 lg:w-4 mr-1" />
-            Edit Case
-          </Button>
+          <Link to={`/cases/${case_?.systemCaseId || case_?.id}/edit`}>
+            <Button variant="outline" size="sm" className="h-8 lg:h-10 px-3 lg:px-4 text-xs lg:text-sm">
+              <Edit className="h-3 w-3 lg:h-4 lg:w-4 mr-1" />
+              Edit Case
+            </Button>
+          </Link>
           <Button size="sm" className="h-8 lg:h-10 px-3 lg:px-4 text-xs lg:text-sm">
             <FileText className="h-3 w-3 lg:h-4 lg:w-4 mr-1" />
             Report
@@ -104,7 +112,7 @@ export function CaseDetail() {
                       </Badge>
                     </div>
                     <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <span>PRM Docket: AFA-{case_.id}</span>
+                      <span>PRM Docket: {case_.systemCaseId || case_.primaryCaseId || case_.id}</span>
                       <span>•</span>
                       <span>DOK: {new Date(case_.dateOfKnowledge || case_.dok).toLocaleDateString()}</span>
                       <span>•</span>
@@ -155,7 +163,7 @@ export function CaseDetail() {
                           const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                           const today = new Date();
                           let businessDays = 0;
-                          let currentDate = new Date(dokDate);
+                          const currentDate = new Date(dokDate);
                           
                           while (currentDate <= today) {
                             const dayOfWeek = currentDate.getDay();
@@ -175,7 +183,7 @@ export function CaseDetail() {
                         const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                         const today = new Date();
                         let businessDays = 0;
-                        let currentDate = new Date(dokDate);
+                        const currentDate = new Date(dokDate);
                         
                         while (currentDate <= today) {
                           const dayOfWeek = currentDate.getDay();
@@ -194,7 +202,7 @@ export function CaseDetail() {
                           const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                           const today = new Date();
                           let businessDays = 0;
-                          let currentDate = new Date(dokDate);
+                          const currentDate = new Date(dokDate);
                           
                           while (currentDate <= today) {
                             const dayOfWeek = currentDate.getDay();
@@ -576,19 +584,86 @@ export function CaseDetail() {
             </TabsContent>
 
             <TabsContent value="evidence" className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium">Evidence & Documents</h3>
-                <Button>
-                  <Paperclip className="h-4 w-4 mr-2" />
-                  Upload Evidence
-                </Button>
-              </div>
-              
-              <Card>
-                <CardContent className="text-center py-8 text-muted-foreground">
-                  Evidence management will be implemented in the next phase
-                </CardContent>
-              </Card>
+              {(() => {
+                // Initialize per-case evidence list
+                const [evidence, setEvidence] = useState<UploadedDocMeta[]>(() => inMemoryEvidenceStore[case_.id] || []);
+                const [uploading, setUploading] = useState(false);
+                const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+                const handleFiles = async (files: FileList | null) => {
+                  if (!files || !files.length) return;
+                  setUploading(true);
+                  try {
+                    const newItems: UploadedDocMeta[] = Array.from(files).map(f => ({
+                      id: crypto.randomUUID(),
+                      name: f.name,
+                      size: f.size,
+                      type: f.type || 'application/octet-stream',
+                      uploadedOn: new Date()
+                    }));
+                    const updated = [...newItems, ...evidence];
+                    inMemoryEvidenceStore[case_.id] = updated;
+                    setEvidence(updated);
+                  } finally {
+                    setUploading(false);
+                    if (fileInputRef.current) fileInputRef.current.value = '';
+                  }
+                };
+
+                return (
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <h3 className="text-lg font-medium">Evidence & Documents</h3>
+                      <div className="flex items-center gap-3">
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          multiple
+                          className="hidden"
+                          onChange={e => handleFiles(e.target.files)}
+                          aria-label="Upload evidence files"
+                        />
+                        <Button variant="outline" disabled={uploading} onClick={() => fileInputRef.current?.click()}>
+                          <Paperclip className="h-4 w-4 mr-2" />
+                          {uploading ? 'Uploading...' : 'Upload Evidence'}
+                        </Button>
+                      </div>
+                    </div>
+                    {evidence.length === 0 ? (
+                      <Card>
+                        <CardContent className="text-center py-10 text-muted-foreground text-sm">
+                          No documents uploaded yet.
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      <Card>
+                        <CardContent className="p-0">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>File Name</TableHead>
+                                <TableHead>Type</TableHead>
+                                <TableHead className="text-right">Size</TableHead>
+                                <TableHead>Uploaded</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {evidence.map(doc => (
+                                <TableRow key={doc.id}>
+                                  <TableCell className="font-medium">{doc.name}</TableCell>
+                                  <TableCell>{doc.type || 'Unknown'}</TableCell>
+                                  <TableCell className="text-right">{(doc.size / 1024).toFixed(1)} KB</TableCell>
+                                  <TableCell>{doc.uploadedOn.toLocaleString()}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </CardContent>
+                      </Card>
+                    )}
+                  </div>
+                );
+              })()}
             </TabsContent>
 
             <TabsContent value="sla" className="space-y-4">
@@ -621,7 +696,7 @@ export function CaseDetail() {
                             const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                             const today = new Date();
                             let businessDays = 0;
-                            let currentDate = new Date(dokDate);
+                            const currentDate = new Date(dokDate);
                             
                             while (currentDate <= today) {
                               const dayOfWeek = currentDate.getDay();
@@ -648,7 +723,7 @@ export function CaseDetail() {
                             const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                             const today = new Date();
                             let businessDays = 0;
-                            let currentDate = new Date(dokDate);
+                            const currentDate = new Date(dokDate);
                             
                             while (currentDate <= today) {
                               const dayOfWeek = currentDate.getDay();
@@ -666,7 +741,7 @@ export function CaseDetail() {
                             const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                             const today = new Date();
                             let businessDays = 0;
-                            let currentDate = new Date(dokDate);
+                            const currentDate = new Date(dokDate);
                             
                             while (currentDate <= today) {
                               const dayOfWeek = currentDate.getDay();
@@ -692,7 +767,7 @@ export function CaseDetail() {
                             const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                             const today = new Date();
                             let businessDays = 0;
-                            let currentDate = new Date(dokDate);
+                            const currentDate = new Date(dokDate);
                             
                             while (currentDate <= today) {
                               const dayOfWeek = currentDate.getDay();
@@ -714,7 +789,7 @@ export function CaseDetail() {
                               const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                               const today = new Date();
                               let businessDays = 0;
-                              let currentDate = new Date(dokDate);
+                              const currentDate = new Date(dokDate);
                               
                               while (currentDate <= today) {
                                 const dayOfWeek = currentDate.getDay();
@@ -735,7 +810,7 @@ export function CaseDetail() {
                               const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                               const today = new Date();
                               let businessDays = 0;
-                              let currentDate = new Date(dokDate);
+                              const currentDate = new Date(dokDate);
                               
                               while (currentDate <= today) {
                                 const dayOfWeek = currentDate.getDay();
@@ -773,7 +848,7 @@ export function CaseDetail() {
                             {(() => {
                               const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                               let businessDays = 0;
-                              let currentDate = new Date(dokDate);
+                              const currentDate = new Date(dokDate);
                               
                               while (businessDays < 12) {
                                 currentDate.setDate(currentDate.getDate() + 1);
@@ -800,7 +875,7 @@ export function CaseDetail() {
                       const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                       const today = new Date();
                       let businessDays = 0;
-                      let currentDate = new Date(dokDate);
+                      const currentDate = new Date(dokDate);
                       
                       while (currentDate <= today) {
                         const dayOfWeek = currentDate.getDay();
@@ -1008,7 +1083,7 @@ export function CaseDetail() {
                     const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                     const today = new Date();
                     let businessDays = 0;
-                    let currentDate = new Date(dokDate);
+                    const currentDate = new Date(dokDate);
                     
                     while (currentDate <= today) {
                       const dayOfWeek = currentDate.getDay();
@@ -1071,7 +1146,7 @@ export function CaseDetail() {
                           const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                           const today = new Date();
                           let businessDays = 0;
-                          let currentDate = new Date(dokDate);
+                          const currentDate = new Date(dokDate);
                           
                           while (currentDate <= today) {
                             const dayOfWeek = currentDate.getDay();
@@ -1092,7 +1167,7 @@ export function CaseDetail() {
                         {(() => {
                           const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                           let businessDays = 0;
-                          let currentDate = new Date(dokDate);
+                          const currentDate = new Date(dokDate);
                           
                           while (businessDays < 12) {
                             currentDate.setDate(currentDate.getDate() + 1);

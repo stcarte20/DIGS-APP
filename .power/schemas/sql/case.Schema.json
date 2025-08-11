@@ -1,0 +1,1153 @@
+{
+  "name": "[dbo].[Case]",
+  "title": "[dbo].[Case]",
+  "x-ms-permission": "read-write",
+  "x-ms-capabilities": {
+    "sortRestrictions": {
+      "sortable": true
+    },
+    "filterRestrictions": {
+      "filterable": true
+    },
+    "selectRestrictions": {
+      "selectable": true
+    },
+    "countRestrictions": {
+      "countable": true
+    },
+    "filterFunctionSupport": [
+      "lt",
+      "le",
+      "eq",
+      "ne",
+      "gt",
+      "ge",
+      "min",
+      "max",
+      "countdistinct",
+      "add",
+      "sub",
+      "mul",
+      "div",
+      "mod",
+      "negate",
+      "now",
+      "not",
+      "and",
+      "or",
+      "day",
+      "month",
+      "year",
+      "hour",
+      "minute",
+      "second",
+      "date",
+      "time",
+      "totaloffsetminutes",
+      "totalseconds",
+      "round",
+      "floor",
+      "ceiling",
+      "contains",
+      "startswith",
+      "endswith",
+      "length",
+      "indexof",
+      "replace",
+      "substring",
+      "substringof",
+      "tolower",
+      "toupper",
+      "trim",
+      "concat",
+      "sum",
+      "min",
+      "max",
+      "average",
+      "countdistinct",
+      "null"
+    ]
+  },
+  "schema": {
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": [
+        "CaseId",
+        "SystemCaseId",
+        "CaseName",
+        "EntryId",
+        "EmployeeId",
+        "EmployeeFirstName",
+        "EmployeeLastName",
+        "Status",
+        "DOK",
+        "IncidentDate",
+        "ReportedDate",
+        "LitigationHold",
+        "CloseoutScheduled",
+        "EruCompleted",
+        "IsPrmCase",
+        "FoiNeeded",
+        "CreatedOn"
+      ],
+      "properties": {
+        "CaseId": {
+          "title": "CaseId",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "contains",
+              "startswith",
+              "endswith",
+              "length",
+              "indexof",
+              "replace",
+              "substring",
+              "substringof",
+              "tolower",
+              "toupper",
+              "trim",
+              "concat"
+            ]
+          },
+          "type": "string",
+          "format": "guid",
+          "x-ms-keyOrder": 1,
+          "x-ms-keyType": "primary",
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "SystemCaseId": {
+          "title": "SystemCaseId",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "contains",
+              "startswith",
+              "endswith",
+              "length",
+              "indexof",
+              "replace",
+              "substring",
+              "substringof",
+              "tolower",
+              "toupper",
+              "trim",
+              "concat"
+            ]
+          },
+          "type": "string",
+          "maxLength": 30,
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "CaseName": {
+          "title": "CaseName",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "contains",
+              "startswith",
+              "endswith",
+              "length",
+              "indexof",
+              "replace",
+              "substring",
+              "substringof",
+              "tolower",
+              "toupper",
+              "trim",
+              "concat"
+            ]
+          },
+          "type": "string",
+          "maxLength": 250,
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "EntryId": {
+          "title": "EntryId",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "add",
+              "sub",
+              "mul",
+              "div",
+              "mod",
+              "negate",
+              "sum",
+              "average"
+            ]
+          },
+          "type": "integer",
+          "format": "int32",
+          "minimum": -2147483648,
+          "maximum": 2147483647,
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "EmployeeId": {
+          "title": "EmployeeId",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "contains",
+              "startswith",
+              "endswith",
+              "length",
+              "indexof",
+              "replace",
+              "substring",
+              "substringof",
+              "tolower",
+              "toupper",
+              "trim",
+              "concat"
+            ]
+          },
+          "type": "string",
+          "maxLength": 50,
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "EmployeeFirstName": {
+          "title": "EmployeeFirstName",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "contains",
+              "startswith",
+              "endswith",
+              "length",
+              "indexof",
+              "replace",
+              "substring",
+              "substringof",
+              "tolower",
+              "toupper",
+              "trim",
+              "concat"
+            ]
+          },
+          "type": "string",
+          "maxLength": 100,
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "EmployeeLastName": {
+          "title": "EmployeeLastName",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "contains",
+              "startswith",
+              "endswith",
+              "length",
+              "indexof",
+              "replace",
+              "substring",
+              "substringof",
+              "tolower",
+              "toupper",
+              "trim",
+              "concat"
+            ]
+          },
+          "type": "string",
+          "maxLength": 100,
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "UnionGroupCode": {
+          "title": "UnionGroupCode",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "contains",
+              "startswith",
+              "endswith",
+              "length",
+              "indexof",
+              "replace",
+              "substring",
+              "substringof",
+              "tolower",
+              "toupper",
+              "trim",
+              "concat"
+            ]
+          },
+          "type": "string",
+          "maxLength": 10,
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "ViolationType": {
+          "title": "ViolationType",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "contains",
+              "startswith",
+              "endswith",
+              "length",
+              "indexof",
+              "replace",
+              "substring",
+              "substringof",
+              "tolower",
+              "toupper",
+              "trim",
+              "concat"
+            ]
+          },
+          "type": "string",
+          "maxLength": 100,
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "Severity": {
+          "title": "Severity",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "add",
+              "sub",
+              "mul",
+              "div",
+              "mod",
+              "negate",
+              "sum",
+              "average"
+            ]
+          },
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 255,
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "Likelihood": {
+          "title": "Likelihood",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "add",
+              "sub",
+              "mul",
+              "div",
+              "mod",
+              "negate",
+              "sum",
+              "average"
+            ]
+          },
+          "type": "integer",
+          "format": "int32",
+          "minimum": 0,
+          "maximum": 255,
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "Status": {
+          "title": "Status",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "contains",
+              "startswith",
+              "endswith",
+              "length",
+              "indexof",
+              "replace",
+              "substring",
+              "substringof",
+              "tolower",
+              "toupper",
+              "trim",
+              "concat"
+            ]
+          },
+          "type": "string",
+          "maxLength": 50,
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "Priority": {
+          "title": "Priority",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "contains",
+              "startswith",
+              "endswith",
+              "length",
+              "indexof",
+              "replace",
+              "substring",
+              "substringof",
+              "tolower",
+              "toupper",
+              "trim",
+              "concat"
+            ]
+          },
+          "type": "string",
+          "maxLength": 20,
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "DOK": {
+          "title": "DOK",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "day",
+              "month",
+              "year",
+              "date",
+              "time"
+            ]
+          },
+          "type": "string",
+          "format": "date",
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "IncidentDate": {
+          "title": "IncidentDate",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "day",
+              "month",
+              "year",
+              "date",
+              "time"
+            ]
+          },
+          "type": "string",
+          "format": "date",
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "ReportedDate": {
+          "title": "ReportedDate",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "day",
+              "month",
+              "year",
+              "hour",
+              "minute",
+              "second",
+              "date",
+              "time"
+            ]
+          },
+          "type": "string",
+          "format": "date-no-tz",
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "InvestigatorId": {
+          "title": "InvestigatorId",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "contains",
+              "startswith",
+              "endswith",
+              "length",
+              "indexof",
+              "replace",
+              "substring",
+              "substringof",
+              "tolower",
+              "toupper",
+              "trim",
+              "concat"
+            ]
+          },
+          "type": "string",
+          "format": "guid",
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "BaseCode": {
+          "title": "BaseCode",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "contains",
+              "startswith",
+              "endswith",
+              "length",
+              "indexof",
+              "replace",
+              "substring",
+              "substringof",
+              "tolower",
+              "toupper",
+              "trim",
+              "concat"
+            ]
+          },
+          "type": "string",
+          "maxLength": 10,
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "RiskScore": {
+          "title": "RiskScore",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "add",
+              "sub",
+              "mul",
+              "div",
+              "mod",
+              "negate",
+              "sum",
+              "average"
+            ]
+          },
+          "type": "integer",
+          "format": "int32",
+          "minimum": -2147483648,
+          "maximum": 2147483647,
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "LitigationHold": {
+          "title": "LitigationHold",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "not",
+              "and",
+              "or"
+            ]
+          },
+          "type": "boolean",
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "Description": {
+          "title": "Description",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "contains",
+              "startswith",
+              "endswith",
+              "length",
+              "indexof",
+              "replace",
+              "substring",
+              "substringof",
+              "tolower",
+              "toupper",
+              "trim",
+              "concat"
+            ]
+          },
+          "type": "string",
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "Summary": {
+          "title": "Summary",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "contains",
+              "startswith",
+              "endswith",
+              "length",
+              "indexof",
+              "replace",
+              "substring",
+              "substringof",
+              "tolower",
+              "toupper",
+              "trim",
+              "concat"
+            ]
+          },
+          "type": "string",
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "InvestigationDeadline": {
+          "title": "InvestigationDeadline",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "day",
+              "month",
+              "year",
+              "date",
+              "time"
+            ]
+          },
+          "type": "string",
+          "format": "date",
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "ClosureDeadline": {
+          "title": "ClosureDeadline",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "day",
+              "month",
+              "year",
+              "date",
+              "time"
+            ]
+          },
+          "type": "string",
+          "format": "date",
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "CloseoutScheduled": {
+          "title": "CloseoutScheduled",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "not",
+              "and",
+              "or"
+            ]
+          },
+          "type": "boolean",
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "EruCompleted": {
+          "title": "EruCompleted",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "not",
+              "and",
+              "or"
+            ]
+          },
+          "type": "boolean",
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "Location": {
+          "title": "Location",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "contains",
+              "startswith",
+              "endswith",
+              "length",
+              "indexof",
+              "replace",
+              "substring",
+              "substringof",
+              "tolower",
+              "toupper",
+              "trim",
+              "concat"
+            ]
+          },
+          "type": "string",
+          "maxLength": 200,
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "ConcernType": {
+          "title": "ConcernType",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "contains",
+              "startswith",
+              "endswith",
+              "length",
+              "indexof",
+              "replace",
+              "substring",
+              "substringof",
+              "tolower",
+              "toupper",
+              "trim",
+              "concat"
+            ]
+          },
+          "type": "string",
+          "maxLength": 150,
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "UrgencyLevel": {
+          "title": "UrgencyLevel",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "contains",
+              "startswith",
+              "endswith",
+              "length",
+              "indexof",
+              "replace",
+              "substring",
+              "substringof",
+              "tolower",
+              "toupper",
+              "trim",
+              "concat"
+            ]
+          },
+          "type": "string",
+          "maxLength": 20,
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "IsPrmCase": {
+          "title": "IsPrmCase",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "not",
+              "and",
+              "or"
+            ]
+          },
+          "type": "boolean",
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "FoiNeeded": {
+          "title": "FoiNeeded",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "not",
+              "and",
+              "or"
+            ]
+          },
+          "type": "boolean",
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "SubmitterId": {
+          "title": "SubmitterId",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "contains",
+              "startswith",
+              "endswith",
+              "length",
+              "indexof",
+              "replace",
+              "substring",
+              "substringof",
+              "tolower",
+              "toupper",
+              "trim",
+              "concat"
+            ]
+          },
+          "type": "string",
+          "maxLength": 100,
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "CreatedOn": {
+          "title": "CreatedOn",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "day",
+              "month",
+              "year",
+              "hour",
+              "minute",
+              "second",
+              "date",
+              "time"
+            ]
+          },
+          "type": "string",
+          "format": "date-no-tz",
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "CreatedBy": {
+          "title": "CreatedBy",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "contains",
+              "startswith",
+              "endswith",
+              "length",
+              "indexof",
+              "replace",
+              "substring",
+              "substringof",
+              "tolower",
+              "toupper",
+              "trim",
+              "concat"
+            ]
+          },
+          "type": "string",
+          "maxLength": 100,
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "ModifiedOn": {
+          "title": "ModifiedOn",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "day",
+              "month",
+              "year",
+              "hour",
+              "minute",
+              "second",
+              "date",
+              "time"
+            ]
+          },
+          "type": "string",
+          "format": "date-no-tz",
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        },
+        "ModifiedBy": {
+          "title": "ModifiedBy",
+          "x-ms-capabilities": {
+            "filterFunctions": [
+              "lt",
+              "le",
+              "eq",
+              "ne",
+              "gt",
+              "ge",
+              "min",
+              "max",
+              "countdistinct",
+              "contains",
+              "startswith",
+              "endswith",
+              "length",
+              "indexof",
+              "replace",
+              "substring",
+              "substringof",
+              "tolower",
+              "toupper",
+              "trim",
+              "concat"
+            ]
+          },
+          "type": "string",
+          "maxLength": 100,
+          "x-ms-permission": "read-write",
+          "x-ms-sort": "none"
+        }
+      }
+    },
+    "x-ms-permission": "read-write"
+  }
+}

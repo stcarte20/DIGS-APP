@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -20,6 +22,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { Office365Service, Office365User } from '../../services/SimpleOffice365Service';
+import { createCaseUnified } from '../../services/casesHybrid';
 
 // Current user interface for Office365 data
 interface CurrentUser {
@@ -113,6 +116,7 @@ interface FormData {
   urgencyLevel: 'low' | 'medium' | 'high';
   isPrmCase: boolean;
   foiNeeded: boolean;
+  investigator: Office365User | null;
 }
 
 export function NewCaseForm() {
@@ -150,8 +154,18 @@ export function NewCaseForm() {
     witnesses: [],
     urgencyLevel: 'low',
     isPrmCase: false,
-    foiNeeded: false
+  foiNeeded: false,
+  investigator: null
   });
+  // Investigator search state
+  const [investigatorQuery, setInvestigatorQuery] = useState('');
+  const [showInvestigatorSearch, setShowInvestigatorSearch] = useState(false);
+  // Submission state
+  const [submitting, setSubmitting] = useState(false);
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const [investigatorResults, setInvestigatorResults] = useState<Office365User[]>([]);
+  const [isSearchingInvestigator, setIsSearchingInvestigator] = useState(false);
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
@@ -286,6 +300,31 @@ export function NewCaseForm() {
     return () => clearTimeout(timeoutId);
   }, [witnessSearchQuery]);
 
+  // Investigator search effect
+  useEffect(() => {
+    const timeoutId = setTimeout(async () => {
+      if (!investigatorQuery.trim()) {
+        setInvestigatorResults([]);
+        return;
+      }
+      setIsSearchingInvestigator(true);
+      try {
+        const result = await Office365Service.searchUsers(investigatorQuery);
+        if (result.success && result.processedUsers) {
+          setInvestigatorResults(result.processedUsers);
+        } else {
+          setInvestigatorResults([]);
+        }
+      } catch (e) {
+        console.error('Investigator search error', e);
+        setInvestigatorResults([]);
+      } finally {
+        setIsSearchingInvestigator(false);
+      }
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [investigatorQuery]);
+
   const handleSubjectSelect = (user: Office365User) => {
     const selectedUser = {
       ...user,
@@ -394,10 +433,50 @@ export function NewCaseForm() {
     });
   };
 
-  const handleSubmit = (saveAsDraft: boolean = false) => {
-    // TODO: Implement form submission logic
-    console.log('Form submitted:', { formData, saveAsDraft });
-    alert(saveAsDraft ? 'Case saved as draft' : 'Case submitted successfully');
+  const handleSubmit = async (saveAsDraft = false) => {
+    if (submitting) return;
+    if (!formData.subjectEmployee) {
+      alert('Select a subject employee before submitting');
+      return;
+    }
+    if (!formData.incidentDate || !formData.dateOfKnowledge) {
+      alert('Provide incident date and date of knowledge');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const newCase = await createCaseUnified({
+      subject: {
+        firstName: formData.subjectEmployee.displayName?.split(' ')[0] || 'Unknown',
+        lastName: formData.subjectEmployee.displayName?.split(' ').slice(1).join(' ') || 'Unknown',
+        employeeId: formData.subjectEmployee.id || 'UNKNOWN'
+      },
+      incidentDate: new Date(formData.incidentDate),
+      dateOfKnowledge: new Date(formData.dateOfKnowledge),
+      concernType: formData.concernType,
+      contextTags: formData.contextTags,
+      description: formData.description,
+      witnesses: formData.witnesses,
+      urgencyLevel: formData.urgencyLevel,
+      isPrmCase: formData.isPrmCase,
+      foiNeeded: formData.foiNeeded,
+      investigatorId: formData.investigator?.id
+    });
+      console.log(saveAsDraft ? 'Draft case prepared' : 'Created case', newCase);
+      alert(`Case ${newCase.systemCaseId} ${saveAsDraft ? 'saved as draft (placeholder)' : 'created'}`);
+      // Invalidate relevant queries so listings refresh
+      queryClient.invalidateQueries({ queryKey: ['cases'] });
+      queryClient.invalidateQueries({ queryKey: ['recent-cases'] });
+      queryClient.invalidateQueries({ queryKey: ['my-cases'] });
+      if (!saveAsDraft) {
+        navigate('/cases');
+      }
+    } catch (e) {
+      console.error('Case submission failed', e);
+      alert('Case submission failed. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -640,6 +719,68 @@ export function NewCaseForm() {
           </div>
         </CardHeader>
         <CardContent className="space-y-4 lg:space-y-6">
+          {/* Investigator Selection */}
+          <div>
+            <p className="text-sm font-medium mb-2 flex items-center">
+              <Search className="w-4 h-4 mr-1" /> Investigator (optional)
+            </p>
+            <div className="relative">
+              <Input
+                placeholder="Search investigator (leave blank for TBD)"
+                value={investigatorQuery}
+                onChange={(e) => {
+                  setInvestigatorQuery(e.target.value);
+                  setShowInvestigatorSearch(e.target.value.length > 0);
+                }}
+                className="pl-10"
+              />
+              <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
+              {showInvestigatorSearch && investigatorQuery && (
+                <Card className="absolute z-10 w-full mt-1 max-h-60 overflow-auto">
+                  <CardContent className="p-2">
+                    {isSearchingInvestigator ? (
+                      <div className="flex items-center gap-2 p-2 text-sm">
+                        <Loader2 className="h-4 w-4 animate-spin" /> Searching...
+                      </div>
+                    ) : investigatorResults.length > 0 ? (
+                      <div className="space-y-1">
+                        {investigatorResults.map(inv => (
+                          <Button
+                            key={inv.id}
+                            variant="ghost"
+                            className="w-full justify-start p-2 h-auto"
+                            onClick={() => {
+                              setFormData({ ...formData, investigator: inv });
+                              setShowInvestigatorSearch(false);
+                              setInvestigatorQuery('');
+                            }}
+                          >
+                            <div className="text-left">
+                              <div className="font-medium">{inv.displayName}</div>
+                              <div className="text-xs text-gray-500">{inv.jobTitle} • {inv.mail || inv.userPrincipalName}</div>
+                            </div>
+                          </Button>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-center py-2 text-sm">No results</p>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+            {formData.investigator ? (
+              <div className="mt-2 flex items-center gap-2 text-xs bg-blue-50 border border-blue-200 px-2 py-1 rounded">
+                <span className="font-medium">Investigator:</span>
+                <span>{formData.investigator.displayName}</span>
+                <Button variant="ghost" size="sm" className="h-5 px-2" onClick={() => setFormData({ ...formData, investigator: null })}>
+                  <X className="w-3 h-3" />
+                </Button>
+              </div>
+            ) : (
+              <p className="mt-1 text-xs text-gray-500">No investigator selected — will default to TBD</p>
+            )}
+          </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
             <div>
               <p className="text-sm font-medium mb-2 flex items-center">

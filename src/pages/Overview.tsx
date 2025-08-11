@@ -5,7 +5,8 @@ import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { AlertTriangle, Clock, CheckCircle, FileText, Scale, TrendingDown } from 'lucide-react';
 import { DashboardMetrics, Case } from '../types';
-import { getCases, getDashboardMetrics } from '../data/mockCaseData';
+import { getCases } from '../services/casesHybrid';
+import { getDashboardMetrics } from '../data/mockCaseData';
 
 export function Overview() {
   // Fetch dashboard metrics

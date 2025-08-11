@@ -1,177 +1,124 @@
-import { Case, CaseStatus, ViolationType, UnionGroup, BaseCode, TaskStatus, NoteCategory } from '../types';
+import { Case, TaskStatus, NoteCategory, CaseStatus } from '../types';
 
-export const caseData: Case[] = [
-  {
-    id: '1',
-    primaryCaseId: 'INV-2024-0001',
-    secondaryCaseId: 'Smith,John-E12345',
-    caseNumber: 'INV-2024-0001',
-    employeeKey: 'EMP001',
-    employeeFirstName: 'John',
-    employeeLastName: 'Smith',
-    employeeId: 'E12345',
-    unionGroup: UnionGroup.AFA,
-    violationType: ViolationType.Performance,
-    severity: 4,
-    likelihood: 3,
-    status: CaseStatus.Investigating,
-    priority: 'High',
-    dok: new Date('2024-01-15'),
-    incidentDate: new Date('2024-01-10'),
-    reportedDate: new Date('2024-01-15'),
-    investigatorId: 'INV001',
-    assignedTo: 'Sarah Johnson',
-    baseLocation: BaseCode.SEA,
-    riskScore: 85,
-    litigationHold: false,
-    description: 'Investigation into alleged policy violations during scheduled flight operations',
-    summary: 'Employee misconduct investigation',
-    investigationDeadline: new Date('2024-02-15'),
-    closureDeadline: new Date('2024-03-01'),
-    closeoutScheduled: false,
-    eruCompleted: false,
-    createdOn: new Date('2024-01-15'),
-    createdBy: 'system',
-    modifiedOn: new Date('2024-01-15'),
-    modifiedBy: 'system',
-    // Extended fields from intake form
-    subjectEmployee: {
-      id: 'E12345',
-      name: 'John Smith',
-      email: 'john.smith@company.com',
-      jobTitle: 'Flight Attendant',
-      department: 'In-Flight Services',
-      officeLocation: 'Seattle Hub',
-      manager: {
-        id: 'M001',
-        name: 'Sarah Johnson',
-        email: 'sarah.johnson@company.com',
-        jobTitle: 'In-Flight Services Manager',
-        department: 'In-Flight Services'
-      }
-    },
-    dateOfKnowledge: new Date('2024-01-15'),
-    location: 'Aircraft - Flight AS123',
-    concernType: 'Performance Issues',
-    contextTags: ['Misuse of Time', 'Call Avoidance', 'Failure to Follow Instructions'],
-    witnesses: [
-      {
-        id: 'W001',
-        displayName: 'Michael Davis',
-        mail: 'michael.davis@company.com',
-        type: 'employee',
-        details: 'Flight Attendant - In-Flight Services',
-        manager: {
-          id: 'M001',
-          name: 'Sarah Johnson',
-          email: 'sarah.johnson@company.com',
-          jobTitle: 'In-Flight Services Manager',
-          department: 'In-Flight Services'
-        }
-      },
-      {
-        id: 'W002',
-        name: 'Passenger John Doe',
-        type: 'external',
-        details: 'Passenger on Flight AS123'
-      }
-    ],
-    urgencyLevel: 'high',
-    isPrmCase: false,
-    foiNeeded: false,
-    submitterId: 'SUB001',
-    submitterInfo: {
-      id: 'SUB001',
-      name: 'Lisa Chen',
-      email: 'lisa.chen@company.com',
-      jobTitle: 'Operations Supervisor',
-      employeeNumber: 'E99999',
-      department: 'Operations'
-    }
-  },
-  {
-    id: '2',
-    primaryCaseId: 'INV-2024-0002',
-    secondaryCaseId: 'Doe,Jane-E67890',
-    caseNumber: 'INV-2024-0002',
-    employeeKey: 'EMP002',
-    employeeFirstName: 'Jane',
-    employeeLastName: 'Doe',
-    employeeId: 'E67890',
-    unionGroup: UnionGroup.AFA,
-    violationType: ViolationType.EEO,
-    severity: 5,
-    likelihood: 4,
-    status: CaseStatus.New,
-    priority: 'Critical',
-    dok: new Date('2024-01-20'),
-    incidentDate: new Date('2024-01-18'),
-    reportedDate: new Date('2024-01-20'),
-    investigatorId: 'INV002',
-    assignedTo: 'Michael Brown',
-    baseLocation: BaseCode.PDX,
-    riskScore: 92,
-    litigationHold: true,
-    description: 'Formal harassment complaint filed regarding inappropriate workplace behavior',
-    summary: 'Harassment complaint investigation',
-    investigationDeadline: new Date('2024-02-20'),
-    closureDeadline: new Date('2024-03-05'),
-    closeoutScheduled: false,
-    eruCompleted: false,
-    createdOn: new Date('2024-01-20'),
-    createdBy: 'system',
-    modifiedOn: new Date('2024-01-20'),
-    modifiedBy: 'system',
-    // Extended fields from intake form
-    subjectEmployee: {
-      id: 'E67890',
-      name: 'Jane Doe',
-      email: 'jane.doe@company.com',
-      jobTitle: 'Customer Service Representative',
-      department: 'Customer Relations',
-      officeLocation: 'Portland Hub',
-      manager: {
-        id: 'M002',
-        name: 'Robert Wilson',
-        email: 'robert.wilson@company.com',
-        jobTitle: 'Customer Relations Manager',
-        department: 'Customer Relations'
-      }
-    },
-    dateOfKnowledge: new Date('2024-01-20'),
-    location: 'Customer Service Desk - Terminal B',
-    concernType: 'Harassment - Sexual',
-    contextTags: ['Sexual Harassment'],
-    witnesses: [
-      {
-        id: 'W003',
-        displayName: 'Amanda Rodriguez',
-        mail: 'amanda.rodriguez@company.com',
-        type: 'employee',
-        details: 'Customer Service Representative - Customer Relations',
-        manager: {
-          id: 'M002',
-          name: 'Robert Wilson',
-          email: 'robert.wilson@company.com',
-          jobTitle: 'Customer Relations Manager',
-          department: 'Customer Relations'
-        }
-      }
-    ],
-    urgencyLevel: 'high',
-    isPrmCase: true,
-    foiNeeded: true,
-    submitterId: 'SUB002',
-    submitterInfo: {
-      id: 'SUB002',
-      name: 'David Kim',
-      email: 'david.kim@company.com',
-      jobTitle: 'HR Business Partner',
-      employeeNumber: 'E88888',
-      department: 'Human Resources'
-    }
+// In-memory case store starts empty; will be populated through intake form
+export const caseData: Case[] = [];
+
+// Internal counters
+let nextPrmNumber = 1;
+let nextNprmNumber = 1;
+let nextEntryId = 1;
+
+function pad(num: number, size = 4) {
+  return num.toString().padStart(size, '0');
+}
+
+export function generateSystemCaseId(isPrm: boolean): string {
+  if (isPrm) {
+    return `PRM-AFA-${pad(nextPrmNumber++)}`;
+  } else {
+    return `NPRM-AFA-${pad(nextNprmNumber++)}`;
   }
-];
+}
+
+export function generateCaseName(first: string, last: string, employeeId: string) {
+  // Standard: LastName,FirstName EmployeeId (no extra spaces)
+  return `${last},${first} ${employeeId}`;
+}
+
+export function getNextEntryId(): number {
+  return nextEntryId++;
+}
+
+// Create a new case from intake minimal data
+export function createCaseFromIntake(intake: {
+  subject: { firstName: string; lastName: string; employeeId: string };
+  incidentDate: Date;
+  dateOfKnowledge: Date;
+  concernType: string;
+  contextTags: string[];
+  description: string;
+  witnesses: any[];
+  urgencyLevel: 'low' | 'medium' | 'high';
+  isPrmCase: boolean;
+  foiNeeded: boolean;
+  investigatorId?: string;
+}): Case {
+  const now = new Date();
+  // SLA: Investigation Deadline (12 business days) & Closure Deadline (investigation + 14 calendar days)
+  function addBusinessDays(start: Date, businessDays: number) {
+    const date = new Date(start);
+    let added = 0;
+    while (added < businessDays) {
+      date.setDate(date.getDate() + 1);
+      const day = date.getDay();
+      if (day !== 0 && day !== 6) added++;
+    }
+    return date;
+  }
+  const investigationDeadline = addBusinessDays(now, 12);
+  const closureDeadline = new Date(investigationDeadline.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+  const systemCaseId = generateSystemCaseId(intake.isPrmCase);
+  const caseName = generateCaseName(intake.subject.firstName, intake.subject.lastName, intake.subject.employeeId);
+  const entryId = getNextEntryId();
+
+  const newCase: Case = {
+    id: crypto.randomUUID(),
+    systemCaseId,
+    caseName,
+    entryId,
+    primaryCaseId: systemCaseId, // map for now
+    secondaryCaseId: caseName.replace(' ', '-'),
+    caseNumber: systemCaseId,
+    employeeKey: intake.subject.employeeId,
+    employeeFirstName: intake.subject.firstName,
+    employeeLastName: intake.subject.lastName,
+    employeeId: intake.subject.employeeId,
+    unionGroup: null as any, // to be populated later
+    violationType: null as any,
+    severity: 0,
+    likelihood: 0,
+    status: CaseStatus.New,
+    priority: intake.urgencyLevel === 'high' ? 'High' : intake.urgencyLevel === 'medium' ? 'Medium' : 'Low',
+    dok: intake.dateOfKnowledge,
+    incidentDate: intake.incidentDate,
+    reportedDate: now,
+    investigatorId: intake.investigatorId || 'TBD',
+    assignedTo: undefined,
+    baseLocation: null as any,
+    riskScore: 0,
+    litigationHold: false,
+    description: intake.description,
+    summary: undefined,
+    investigationDeadline,
+    closureDeadline,
+    closeoutScheduled: false,
+    eruCompleted: false,
+    createdOn: now,
+    createdBy: 'CURRENT_USER',
+    modifiedOn: now,
+    modifiedBy: 'CURRENT_USER',
+    subjectEmployee: {
+      id: intake.subject.employeeId,
+      name: `${intake.subject.firstName} ${intake.subject.lastName}`,
+      email: '',
+      jobTitle: '',
+      department: ''
+    },
+    dateOfKnowledge: intake.dateOfKnowledge,
+    location: undefined,
+    concernType: intake.concernType,
+    contextTags: intake.contextTags,
+    witnesses: intake.witnesses,
+    urgencyLevel: intake.urgencyLevel,
+    isPrmCase: intake.isPrmCase,
+    foiNeeded: intake.foiNeeded,
+    submitterId: 'CURRENT_USER',
+    submitterInfo: undefined
+  };
+  caseData.push(newCase);
+  return newCase;
+}
 
 export const getCases = (filters?: any, page = 1, pageSize = 10) => {
   let filteredCases = [...caseData];

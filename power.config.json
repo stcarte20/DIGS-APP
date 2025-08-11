@@ -17,6 +17,38 @@
       "authenticationType": null,
       "sharedConnectionId": null,
       "dataSets": {}
+    },
+    "e9a7e5d0-390e-4f73-b89e-64713bf9c562": {
+      "id": "/providers/Microsoft.PowerApps/apis/shared_sql",
+      "displayName": "SQL Server",
+      "dataSources": [
+        "LRDIGS",
+        "case",
+        "vw_activecases",
+        "casenote",
+        "casetask"
+      ],
+      "authenticationType": "oauth",
+      "sharedConnectionId": "/providers/Microsoft.PowerApps/apis/shared_sql/connections/6dd4f1f2b9254b8a910072703ef0a3e5",
+      "dataSets": {
+        "powercoredevelopment.database.windows.net,LRDIGS": {
+          "dataSources": {
+            "LRDIGS": {},
+            "case": {
+              "tableName": "[dbo].[Case]"
+            },
+            "vw_activecases": {
+              "tableName": "[dbo].[vw_ActiveCases]"
+            },
+            "casenote": {
+              "tableName": "[dbo].[CaseNote]"
+            },
+            "casetask": {
+              "tableName": "[dbo].[CaseTask]"
+            }
+          }
+        }
+      }
     }
   }
 }

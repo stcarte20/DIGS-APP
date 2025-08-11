@@ -115,6 +115,10 @@ export enum GrievanceStatus {
 
 // Core Entities
 export interface Case extends BaseEntity {
+  // New identification fields
+  systemCaseId: string; // PRM-AFA-0001 or NPRM-AFA-0001
+  caseName: string; // Last, First EmployeeId (display)
+  entryId: number; // Auto-increment starting at 1
   primaryCaseId: string; // INV-YYYY-NNNN
   secondaryCaseId: string; // Last,First-EID
   caseNumber: string; // Display-friendly case number
