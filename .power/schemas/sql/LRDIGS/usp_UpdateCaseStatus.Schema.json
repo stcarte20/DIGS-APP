@@ -1,0 +1,214 @@
+{
+  "name": "[dbo].[usp_UpdateCaseStatus]",
+  "title": "[dbo].[usp_UpdateCaseStatus]",
+  "schema": {
+    "inputparameters": {
+      "type": "object",
+      "properties": {
+        "ChangedBy": {
+          "title": "ChangedBy",
+          "type": "string",
+          "maxLength": 100,
+          "x-ms-sql-max-length": "100"
+        },
+        "NewStatus": {
+          "title": "NewStatus",
+          "type": "string",
+          "maxLength": 50,
+          "x-ms-sql-max-length": "50"
+        },
+        "SystemCaseId": {
+          "title": "SystemCaseId",
+          "type": "string",
+          "maxLength": 30,
+          "x-ms-sql-max-length": "30"
+        }
+      }
+    },
+    "type": "object",
+    "procedureresultschema": {
+      "type": "object",
+      "properties": {
+        "returncode": {
+          "title": "ReturnCode",
+          "type": "integer"
+        },
+        "outputparameters": {
+          "title": "OutputParameters",
+          "type": "object"
+        },
+        "resultsets": {
+          "title": "ResultSets",
+          "type": "object",
+          "properties": {
+            "Table1": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "CaseId": {
+                    "title": "CaseId",
+                    "type": "string",
+                    "format": "guid"
+                  },
+                  "SystemCaseId": {
+                    "title": "SystemCaseId",
+                    "type": "string"
+                  },
+                  "CaseName": {
+                    "title": "CaseName",
+                    "type": "string"
+                  },
+                  "EntryId": {
+                    "title": "EntryId",
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "EmployeeId": {
+                    "title": "EmployeeId",
+                    "type": "string"
+                  },
+                  "EmployeeFirstName": {
+                    "title": "EmployeeFirstName",
+                    "type": "string"
+                  },
+                  "EmployeeLastName": {
+                    "title": "EmployeeLastName",
+                    "type": "string"
+                  },
+                  "UnionGroupCode": {
+                    "title": "UnionGroupCode",
+                    "type": "string"
+                  },
+                  "ViolationType": {
+                    "title": "ViolationType",
+                    "type": "string"
+                  },
+                  "Severity": {
+                    "title": "Severity",
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Likelihood": {
+                    "title": "Likelihood",
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Status": {
+                    "title": "Status",
+                    "type": "string"
+                  },
+                  "Priority": {
+                    "title": "Priority",
+                    "type": "string"
+                  },
+                  "DOK": {
+                    "title": "DOK",
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "IncidentDate": {
+                    "title": "IncidentDate",
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "ReportedDate": {
+                    "title": "ReportedDate",
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "InvestigatorId": {
+                    "title": "InvestigatorId",
+                    "type": "string",
+                    "format": "guid"
+                  },
+                  "BaseCode": {
+                    "title": "BaseCode",
+                    "type": "string"
+                  },
+                  "RiskScore": {
+                    "title": "RiskScore",
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "LitigationHold": {
+                    "title": "LitigationHold",
+                    "type": "boolean"
+                  },
+                  "Description": {
+                    "title": "Description",
+                    "type": "string"
+                  },
+                  "Summary": {
+                    "title": "Summary",
+                    "type": "string"
+                  },
+                  "InvestigationDeadline": {
+                    "title": "InvestigationDeadline",
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "ClosureDeadline": {
+                    "title": "ClosureDeadline",
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "CloseoutScheduled": {
+                    "title": "CloseoutScheduled",
+                    "type": "boolean"
+                  },
+                  "EruCompleted": {
+                    "title": "EruCompleted",
+                    "type": "boolean"
+                  },
+                  "Location": {
+                    "title": "Location",
+                    "type": "string"
+                  },
+                  "ConcernType": {
+                    "title": "ConcernType",
+                    "type": "string"
+                  },
+                  "UrgencyLevel": {
+                    "title": "UrgencyLevel",
+                    "type": "string"
+                  },
+                  "IsPrmCase": {
+                    "title": "IsPrmCase",
+                    "type": "boolean"
+                  },
+                  "FoiNeeded": {
+                    "title": "FoiNeeded",
+                    "type": "boolean"
+                  },
+                  "SubmitterId": {
+                    "title": "SubmitterId",
+                    "type": "string"
+                  },
+                  "CreatedOn": {
+                    "title": "CreatedOn",
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "CreatedBy": {
+                    "title": "CreatedBy",
+                    "type": "string"
+                  },
+                  "ModifiedOn": {
+                    "title": "ModifiedOn",
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "ModifiedBy": {
+                    "title": "ModifiedBy",
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

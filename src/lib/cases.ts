@@ -25,7 +25,7 @@ const mockCases: MockCase[] = [
   {
     id: '1',
   systemCaseId: 'PRM-AFA-0001',
-  caseName: 'Smith, John E12345',
+  caseName: 'Smith,John E12345',
   entryId: 1,
     primaryCaseId: 'INV-2024-0001',
     secondaryCaseId: 'Smith,John-E12345',
@@ -158,10 +158,18 @@ export async function updateCase(id: string, updates: Partial<Case>): Promise<Ca
     stringUpdates.closureDeadline = updates.closureDeadline.toISOString();
   }
 
-  // Update the case
+  // Regenerate caseName if employee name/id changed
+  const original = mockCases[caseIndex];
+  let regeneratedName = original.caseName;
+  const first = stringUpdates.employeeFirstName || original.employeeFirstName;
+  const last = stringUpdates.employeeLastName || original.employeeLastName;
+  const empId = stringUpdates.employeeId || original.employeeId;
+  regeneratedName = `${last},${first} ${empId}`;
+
   mockCases[caseIndex] = {
-    ...mockCases[caseIndex],
+    ...original,
     ...stringUpdates,
+    caseName: regeneratedName,
     modifiedOn: new Date().toISOString(),
     modifiedBy: 'CURRENT_USER'
   };

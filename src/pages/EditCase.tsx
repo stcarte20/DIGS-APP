@@ -21,7 +21,8 @@ import {
   Edit,
   Building
 } from 'lucide-react';
-import { getCaseById, updateCase } from '../lib/cases';
+// Switched to hybrid unified services
+import { getCaseByIdUnified, updateCaseUnified } from '../services/casesHybrid';
 import { Office365Service, Office365User } from '../services/SimpleOffice365Service';
 import { Case } from '../types/index';
 
@@ -68,7 +69,7 @@ export function EditCase() {
   // Fetch case data
   const { data: case_, isLoading: caseLoading, error: caseError } = useQuery({
     queryKey: ['case', id],
-    queryFn: () => getCaseById(id!),
+    queryFn: () => getCaseByIdUnified(id!),
     enabled: !!id,
   });
 
@@ -86,7 +87,7 @@ export function EditCase() {
 
   // Update case mutation
   const updateCaseMutation = useMutation({
-    mutationFn: (updatedCase: Partial<Case>) => updateCase(id!, updatedCase),
+    mutationFn: (updatedCase: Partial<Case>) => updateCaseUnified(id!, updatedCase),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['case', id] });
       queryClient.invalidateQueries({ queryKey: ['cases'] });

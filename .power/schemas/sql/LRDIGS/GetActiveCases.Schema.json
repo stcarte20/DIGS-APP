@@ -1,0 +1,29 @@
+{
+  "name": "[dbo].[GetActiveCases]",
+  "title": "[dbo].[GetActiveCases]",
+  "schema": {
+    "inputparameters": {
+      "type": "object",
+      "x-ms-visibility": "internal",
+      "default": {}
+    },
+    "type": "object",
+    "procedureresultschema": {
+      "type": "object",
+      "properties": {
+        "returncode": {
+          "title": "ReturnCode",
+          "type": "integer"
+        },
+        "outputparameters": {
+          "title": "OutputParameters",
+          "type": "object"
+        },
+        "resultsets": {
+          "title": "ResultSets",
+          "type": "object"
+        }
+      }
+    }
+  }
+}

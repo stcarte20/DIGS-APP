@@ -21,7 +21,8 @@ export function generateSystemCaseId(isPrm: boolean): string {
 }
 
 export function generateCaseName(first: string, last: string, employeeId: string) {
-  return `${last}, ${first} ${employeeId}`;
+  // Standard: LastName,FirstName EmployeeId (no extra spaces)
+  return `${last},${first} ${employeeId}`;
 }
 
 export function getNextEntryId(): number {
@@ -43,8 +44,18 @@ export function createCaseFromIntake(intake: {
   investigatorId?: string;
 }): Case {
   const now = new Date();
-  const baseInvestigationDays = 12; // placeholder SLA
-  const investigationDeadline = new Date(now.getTime() + baseInvestigationDays * 24 * 60 * 60 * 1000);
+  // SLA: Investigation Deadline (12 business days) & Closure Deadline (investigation + 14 calendar days)
+  function addBusinessDays(start: Date, businessDays: number) {
+    const date = new Date(start);
+    let added = 0;
+    while (added < businessDays) {
+      date.setDate(date.getDate() + 1);
+      const day = date.getDay();
+      if (day !== 0 && day !== 6) added++;
+    }
+    return date;
+  }
+  const investigationDeadline = addBusinessDays(now, 12);
   const closureDeadline = new Date(investigationDeadline.getTime() + 14 * 24 * 60 * 60 * 1000);
 
   const systemCaseId = generateSystemCaseId(intake.isPrmCase);

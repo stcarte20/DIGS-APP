@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '.
 import { InvestigatorModal } from '../components/InvestigatorModal';
 import { Plus, Filter, Eye, Clock, AlertTriangle, Shield, Edit } from 'lucide-react';
 import { Case, CaseSearchFilters, CaseStatus } from '../types';
-import { getCases } from '../data/mockCaseData';
+import { getCases } from '../services/casesHybrid';
 
 export function Cases() {
   const [searchTerm] = useState('');
@@ -371,7 +371,7 @@ export function Cases() {
                         {/* Actions */}
                         <TableCell className="py-4">
                           <div className="flex items-center justify-center space-x-2">
-                            <Link to={`/cases/${case_.id}`}>
+                            <Link to={`/cases/${case_.systemCaseId || case_.id}`}>
                               <Button 
                                 variant="outline" 
                                 size="sm"
@@ -381,7 +381,7 @@ export function Cases() {
                                 <Eye className="h-3 w-3" />
                               </Button>
                             </Link>
-                            <Link to={`/cases/${case_.id}/edit`}>
+                            <Link to={`/cases/${case_.systemCaseId || case_.id}/edit`}>
                               <Button 
                                 variant="outline" 
                                 size="sm"

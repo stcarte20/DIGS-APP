@@ -18,7 +18,9 @@ import {
   Briefcase
 } from 'lucide-react';
 import { Task, CaseStatus, Case } from '../types';
-import { getCases, getTasks } from '../data/mockCaseData';
+import { getCases } from '../services/casesHybrid';
+import { getTasks } from '../data/mockCaseData';
+import { getRecentActivity } from '../data/activityFeed';
 import { getGrievancesForWorkspace } from '../data/mockGrievanceData';
 
 // Mock current user - in production this would come from authentication
@@ -102,6 +104,9 @@ export function MyWorkspace() {
       date: caseItem.investigationDeadline
     }))
   ];
+
+  // Recent activity
+  const recentActivity = getRecentActivity(6).data;
 
   return (
     <div className="space-y-6 lg:space-y-8">
@@ -354,35 +359,33 @@ export function MyWorkspace() {
           </CardContent>
         </Card>
 
-        {/* Recent Activity - Simplified */}
+        {/* Recent Activity - Dynamic */}
         <Card>
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Your latest updates</CardDescription>
+            <CardDescription>Latest case, task and note events</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <div className="flex items-start space-x-3 p-2">
-                <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Case DIGS-2024-001 updated</p>
-                  <p className="text-xs text-gray-500">Status changed to "Investigating" • 2 hours ago</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3 p-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">Witness interview completed</p>
-                  <p className="text-xs text-gray-500">Case DIGS-2024-003 • 5 hours ago</p>
-                </div>
-              </div>
-              <div className="flex items-start space-x-3 p-2">
-                <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">ERU document submitted</p>
-                  <p className="text-xs text-gray-500">Case DIGS-2024-002 • 1 day ago</p>
-                </div>
-              </div>
+              {recentActivity.length === 0 && (
+                <div className="text-sm text-muted-foreground text-center py-4">No recent activity</div>
+              )}
+              {recentActivity.map(item => {
+                const color = item.type === 'case_created' ? 'bg-blue-500' :
+                  item.type === 'task_created' ? 'bg-green-500' :
+                  item.type === 'note_created' ? 'bg-purple-500' : 'bg-orange-500';
+                return (
+                  <div key={item.id} className="flex items-start space-x-3 p-2 rounded hover:bg-muted/40 transition">
+                    <div className={`w-2 h-2 ${color} rounded-full mt-2`}></div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium">{item.title}</p>
+                      <p className="text-xs text-gray-500">
+                        {item.systemCaseId ? `${item.systemCaseId} • ` : ''}{formatTimeAgo(item.timestamp)}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
               <div className="text-center pt-2">
                 <Button variant="ghost" size="sm">View All Activity</Button>
               </div>
@@ -392,4 +395,16 @@ export function MyWorkspace() {
       </div>
     </div>
   );
+}
+
+function formatTimeAgo(date: Date): string {
+  const diffMs = Date.now() - date.getTime();
+  const sec = Math.floor(diffMs / 1000);
+  if (sec < 60) return `${sec}s ago`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const day = Math.floor(hr / 24);
+  return `${day}d ago`;
 }

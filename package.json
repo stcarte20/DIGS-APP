@@ -4,8 +4,10 @@
   "description": "Digital Investigation and Grievance System - React TypeScript Application",
   "type": "module",
   "scripts": {
-  "dev": "concurrently \"vite --port 3000\" \"pac code run --port 8085 --appUrl http://localhost:3000\"",
-  "dev:codeapp": "concurrently \"vite --port 3000\" \"pac code run --port 8085 --appUrl http://localhost:3000\"",
+    "dev": "concurrently \"vite --port 3000\" \"pac code run --port 8085 --appUrl http://localhost:3000\"",
+    "dev:codeapp": "concurrently \"vite --port 3000\" \"pac code run --port 8085 --appUrl http://localhost:3000\"",
+    "api": "ts-node ./server/index.ts",
+    "dev:full": "concurrently \"npm:api\" \"vite --port 3000\" \"pac code run --port 8085 --appUrl http://localhost:3000\"",
     "dev:vite": "vite --port 3000",
     "dev:powerapi": "pac code run --port 8088 --appUrl http://localhost:3000",
     "build": "tsc && vite build",
@@ -18,8 +20,8 @@
     "test:ui": "vitest --ui",
     "start": "npm run build && npm run harness",
     "harness": "pac pcf start watch",
-  "bundle": "npm run build",
-  "publish": "npm run build && pac code push",
+    "bundle": "npm run build",
+    "publish": "npm run build && pac code push",
     "clean": "pac pcf clean"
   },
   "dependencies": {
@@ -51,8 +53,12 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "cmdk": "^0.2.0",
+    "cors": "^2.8.5",
     "date-fns": "^3.0.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
     "lucide-react": "^0.312.0",
+    "mssql": "^10.0.1",
     "react": "^18.2.0",
     "react-day-picker": "^8.10.0",
     "react-dom": "^18.2.0",
@@ -65,7 +71,8 @@
     "zustand": "^4.4.7"
   },
   "devDependencies": {
-  "@pa-client/power-code-sdk": "https://github.com/microsoft/PowerAppsCodeApps/releases/download/v0.0.4/7-31-pa-client-power-code-sdk-0.0.1.tgz",
+    "@pa-client/power-code-sdk": "https://github.com/microsoft/PowerAppsCodeApps/releases/download/v0.0.4/7-31-pa-client-power-code-sdk-0.0.1.tgz",
+    "@types/cors": "^2.8.19",
     "@types/node": "^20.19.9",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
@@ -80,6 +87,7 @@
     "postcss": "^8.4.32",
     "prettier": "^3.1.1",
     "tailwindcss": "^3.3.6",
+    "ts-node": "^10.9.2",
     "typescript": "^5.2.2",
     "vite": "^5.0.8",
     "vitest": "^1.1.0"

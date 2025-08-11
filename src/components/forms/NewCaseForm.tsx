@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -20,7 +22,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { Office365Service, Office365User } from '../../services/SimpleOffice365Service';
-import { createCaseFromIntake } from '../../data/mockCaseData';
+import { createCaseUnified } from '../../services/casesHybrid';
 
 // Current user interface for Office365 data
 interface CurrentUser {
@@ -158,6 +160,10 @@ export function NewCaseForm() {
   // Investigator search state
   const [investigatorQuery, setInvestigatorQuery] = useState('');
   const [showInvestigatorSearch, setShowInvestigatorSearch] = useState(false);
+  // Submission state
+  const [submitting, setSubmitting] = useState(false);
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [investigatorResults, setInvestigatorResults] = useState<Office365User[]>([]);
   const [isSearchingInvestigator, setIsSearchingInvestigator] = useState(false);
 
@@ -427,7 +433,8 @@ export function NewCaseForm() {
     });
   };
 
-  const handleSubmit = (saveAsDraft = false) => {
+  const handleSubmit = async (saveAsDraft = false) => {
+    if (submitting) return;
     if (!formData.subjectEmployee) {
       alert('Select a subject employee before submitting');
       return;
@@ -436,7 +443,9 @@ export function NewCaseForm() {
       alert('Provide incident date and date of knowledge');
       return;
     }
-  const newCase = createCaseFromIntake({
+    setSubmitting(true);
+    try {
+      const newCase = await createCaseUnified({
       subject: {
         firstName: formData.subjectEmployee.displayName?.split(' ')[0] || 'Unknown',
         lastName: formData.subjectEmployee.displayName?.split(' ').slice(1).join(' ') || 'Unknown',
@@ -453,8 +462,21 @@ export function NewCaseForm() {
       foiNeeded: formData.foiNeeded,
       investigatorId: formData.investigator?.id
     });
-  console.log(saveAsDraft ? 'Draft case prepared' : 'Created case', newCase);
-  alert(`Case ${newCase.systemCaseId} ${saveAsDraft ? 'saved as draft (placeholder)' : 'created'}`);
+      console.log(saveAsDraft ? 'Draft case prepared' : 'Created case', newCase);
+      alert(`Case ${newCase.systemCaseId} ${saveAsDraft ? 'saved as draft (placeholder)' : 'created'}`);
+      // Invalidate relevant queries so listings refresh
+      queryClient.invalidateQueries({ queryKey: ['cases'] });
+      queryClient.invalidateQueries({ queryKey: ['recent-cases'] });
+      queryClient.invalidateQueries({ queryKey: ['my-cases'] });
+      if (!saveAsDraft) {
+        navigate('/cases');
+      }
+    } catch (e) {
+      console.error('Case submission failed', e);
+      alert('Case submission failed. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (

@@ -836,5 +836,81 @@ export const dataSourcesInfo = {
         }
       }
     }
+  },
+  "case": {
+    "tableId": "Case",
+    "version": "v2",
+    "primaryKey": "CaseId",
+    "dataSourceType": "Connector",
+    "apis": {}
+  },
+  "casenote": {
+    "tableId": "CaseNote",
+    "version": "v2",
+    "primaryKey": "NoteId",
+    "dataSourceType": "Connector",
+    "apis": {}
+  },
+  "casetask": {
+    "tableId": "CaseTask",
+    "version": "v2",
+    "primaryKey": "TaskId",
+    "dataSourceType": "Connector",
+    "apis": {}
+  },
+  "vw_activecases": {
+    "tableId": "vw_ActiveCases",
+    "version": "v2",
+    "primaryKey": "",
+    "dataSourceType": "Connector",
+    "apis": {}
+  },
+  "lrdigs": {
+    "tableId": "",
+    "version": "v2",
+    "primaryKey": "",
+    "dataSourceType": "Connector",
+    "apis": {
+      "GetActiveCases": {
+        "path": "/dbo.GetActiveCases",
+        "method": "POST",
+        "parameters": [],
+        "responseInfo": {}
+      },
+      "usp_CreateCase": {
+        "path": "/dbo.usp_CreateCase",
+        "method": "POST",
+        "parameters": [],
+        "responseInfo": {}
+      },
+      "usp_UpdateCaseStatus": {
+        "path": "/dbo.usp_UpdateCaseStatus",
+        "method": "POST",
+        "parameters": [
+          {
+            "name": "ChangedBy",
+            "in": "body",
+            "required": false,
+            "type": "string",
+            "default": null
+          },
+          {
+            "name": "NewStatus",
+            "in": "body",
+            "required": false,
+            "type": "string",
+            "default": null
+          },
+          {
+            "name": "SystemCaseId",
+            "in": "body",
+            "required": false,
+            "type": "string",
+            "default": null
+          }
+        ],
+        "responseInfo": {}
+      }
+    }
   }
 };
