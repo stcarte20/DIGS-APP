@@ -155,7 +155,7 @@ export function CaseDetail() {
                           const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                           const today = new Date();
                           let businessDays = 0;
-                          let currentDate = new Date(dokDate);
+                          const currentDate = new Date(dokDate);
                           
                           while (currentDate <= today) {
                             const dayOfWeek = currentDate.getDay();
@@ -175,7 +175,7 @@ export function CaseDetail() {
                         const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                         const today = new Date();
                         let businessDays = 0;
-                        let currentDate = new Date(dokDate);
+                        const currentDate = new Date(dokDate);
                         
                         while (currentDate <= today) {
                           const dayOfWeek = currentDate.getDay();
@@ -194,7 +194,7 @@ export function CaseDetail() {
                           const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                           const today = new Date();
                           let businessDays = 0;
-                          let currentDate = new Date(dokDate);
+                          const currentDate = new Date(dokDate);
                           
                           while (currentDate <= today) {
                             const dayOfWeek = currentDate.getDay();
@@ -621,7 +621,7 @@ export function CaseDetail() {
                             const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                             const today = new Date();
                             let businessDays = 0;
-                            let currentDate = new Date(dokDate);
+                            const currentDate = new Date(dokDate);
                             
                             while (currentDate <= today) {
                               const dayOfWeek = currentDate.getDay();
@@ -648,7 +648,7 @@ export function CaseDetail() {
                             const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                             const today = new Date();
                             let businessDays = 0;
-                            let currentDate = new Date(dokDate);
+                            const currentDate = new Date(dokDate);
                             
                             while (currentDate <= today) {
                               const dayOfWeek = currentDate.getDay();
@@ -666,7 +666,7 @@ export function CaseDetail() {
                             const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                             const today = new Date();
                             let businessDays = 0;
-                            let currentDate = new Date(dokDate);
+                            const currentDate = new Date(dokDate);
                             
                             while (currentDate <= today) {
                               const dayOfWeek = currentDate.getDay();
@@ -692,7 +692,7 @@ export function CaseDetail() {
                             const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                             const today = new Date();
                             let businessDays = 0;
-                            let currentDate = new Date(dokDate);
+                            const currentDate = new Date(dokDate);
                             
                             while (currentDate <= today) {
                               const dayOfWeek = currentDate.getDay();
@@ -714,7 +714,7 @@ export function CaseDetail() {
                               const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                               const today = new Date();
                               let businessDays = 0;
-                              let currentDate = new Date(dokDate);
+                              const currentDate = new Date(dokDate);
                               
                               while (currentDate <= today) {
                                 const dayOfWeek = currentDate.getDay();
@@ -735,7 +735,7 @@ export function CaseDetail() {
                               const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                               const today = new Date();
                               let businessDays = 0;
-                              let currentDate = new Date(dokDate);
+                              const currentDate = new Date(dokDate);
                               
                               while (currentDate <= today) {
                                 const dayOfWeek = currentDate.getDay();
@@ -773,7 +773,7 @@ export function CaseDetail() {
                             {(() => {
                               const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                               let businessDays = 0;
-                              let currentDate = new Date(dokDate);
+                              const currentDate = new Date(dokDate);
                               
                               while (businessDays < 12) {
                                 currentDate.setDate(currentDate.getDate() + 1);
@@ -800,7 +800,7 @@ export function CaseDetail() {
                       const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                       const today = new Date();
                       let businessDays = 0;
-                      let currentDate = new Date(dokDate);
+                      const currentDate = new Date(dokDate);
                       
                       while (currentDate <= today) {
                         const dayOfWeek = currentDate.getDay();
@@ -1008,7 +1008,7 @@ export function CaseDetail() {
                     const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                     const today = new Date();
                     let businessDays = 0;
-                    let currentDate = new Date(dokDate);
+                    const currentDate = new Date(dokDate);
                     
                     while (currentDate <= today) {
                       const dayOfWeek = currentDate.getDay();
@@ -1071,7 +1071,7 @@ export function CaseDetail() {
                           const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                           const today = new Date();
                           let businessDays = 0;
-                          let currentDate = new Date(dokDate);
+                          const currentDate = new Date(dokDate);
                           
                           while (currentDate <= today) {
                             const dayOfWeek = currentDate.getDay();
@@ -1092,7 +1092,7 @@ export function CaseDetail() {
                         {(() => {
                           const dokDate = new Date(case_.dateOfKnowledge || case_.dok);
                           let businessDays = 0;
-                          let currentDate = new Date(dokDate);
+                          const currentDate = new Date(dokDate);
                           
                           while (businessDays < 12) {
                             currentDate.setDate(currentDate.getDate() + 1);

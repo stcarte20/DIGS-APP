@@ -144,7 +144,7 @@ export function Cases() {
                 // Business day calculation for overdue cases
                 const calculateBusinessDays = (startDate: Date, endDate: Date) => {
                   let businessDays = 0;
-                  let currentDate = new Date(startDate);
+                  const currentDate = new Date(startDate);
                   
                   while (currentDate <= endDate) {
                     const dayOfWeek = currentDate.getDay();
@@ -210,7 +210,7 @@ export function Cases() {
                     // Business day calculation for SLA
                     const calculateBusinessDays = (startDate: Date, endDate: Date) => {
                       let businessDays = 0;
-                      let currentDate = new Date(startDate);
+                      const currentDate = new Date(startDate);
                       
                       while (currentDate <= endDate) {
                         const dayOfWeek = currentDate.getDay();
@@ -232,7 +232,7 @@ export function Cases() {
                     // Calculate SLA due date
                     const calculateSLADueDate = (dokDate: Date) => {
                       let businessDays = 0;
-                      let currentDate = new Date(dokDate);
+                      const currentDate = new Date(dokDate);
                       
                       while (businessDays < 12) {
                         currentDate.setDate(currentDate.getDate() + 1);

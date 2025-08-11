@@ -4,7 +4,8 @@
   "description": "Digital Investigation and Grievance System - React TypeScript Application",
   "type": "module",
   "scripts": {
-    "dev": "concurrently \"pac code run --port 8080 --appUrl http://localhost:3000\" \"npm run dev:vite\"",
+  "dev": "concurrently \"vite --port 3000\" \"pac code run --port 8085 --appUrl http://localhost:3000\"",
+  "dev:codeapp": "concurrently \"vite --port 3000\" \"pac code run --port 8085 --appUrl http://localhost:3000\"",
     "dev:vite": "vite --port 3000",
     "dev:powerapi": "pac code run --port 8088 --appUrl http://localhost:3000",
     "build": "tsc && vite build",
@@ -17,7 +18,8 @@
     "test:ui": "vitest --ui",
     "start": "npm run build && npm run harness",
     "harness": "pac pcf start watch",
-    "bundle": "npm run build",
+  "bundle": "npm run build",
+  "publish": "npm run build && pac code push",
     "clean": "pac pcf clean"
   },
   "dependencies": {
@@ -63,7 +65,7 @@
     "zustand": "^4.4.7"
   },
   "devDependencies": {
-    "@pa-client/power-code-sdk": "https://github.com/microsoft/PowerAppsCodeApps/releases/download/v0.0.2/6-18-pa-client-power-code-sdk-0.0.1.tgz",
+  "@pa-client/power-code-sdk": "https://github.com/microsoft/PowerAppsCodeApps/releases/download/v0.0.4/7-31-pa-client-power-code-sdk-0.0.1.tgz",
     "@types/node": "^20.19.9",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",

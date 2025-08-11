@@ -1,0 +1,7 @@
+{
+  "name": "digs-codeapp-deploy",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Deployment harness for DIGS Power Apps code app",
+  "license": "UNLICENSED"
+}

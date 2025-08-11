@@ -24,6 +24,9 @@ interface MockCase extends Omit<Case, 'createdOn' | 'modifiedOn' | 'dateOfKnowle
 const mockCases: MockCase[] = [
   {
     id: '1',
+  systemCaseId: 'PRM-AFA-0001',
+  caseName: 'Smith, John E12345',
+  entryId: 1,
     primaryCaseId: 'INV-2024-0001',
     secondaryCaseId: 'Smith,John-E12345',
     caseNumber: 'DIGS-001',
